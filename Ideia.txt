@@ -1,0 +1,19 @@
+Mapa onde dois bonecos IAs (azul e vermelho) são spawnados distantes um do outro e precisam se destruir.
+
+Enquanto a IA faz qualquer ação, ela fica parada e não pode agir, nem cancelar a ação. Ela pode andar pelo mapa livremente.
+
+Possibilidades de hangariamento de recursos:
+Pegar troncos no chão (demora 2 segundos);
+Pegar pedra no chão (demora 2 segundos);
+Pegar pena de galinha (demora 4 segundos);
+Pegar cipó (demora 4 segundos);
+
+Possibilidade de craft:
+Fazer cabana (tronco + pedra) spawna 1 boneco, e um máximo de 10 cabanas podem ser construídas por time, demora 5 segundos;
+Fazer arco e flecha (tronco + pedra + cipó + pena) demora 10 segundos;
+Fazer faca (tronco + pedra) demora 7 segundos;
+
+Batalha:
+Arco + flecha dá 5 de dano, a uma distancia de 5 quadrados;
+Faca dá 10 de dano;
+Cada boneco tem 100 de vida que não regenera e ao morrer o boneco some e não revive;
