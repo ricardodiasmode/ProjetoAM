@@ -47,3 +47,17 @@ class InputHandler:
             time.sleep(0.5)
         if pressed[pygame.K_e]:
             my_character.on_interact(current_background)
+            pygame.display.update()
+            time.sleep(0.5)
+        if pressed[pygame.K_t]:
+            my_character.on_craft_tent_pressed(current_background)
+            pygame.display.update()
+            time.sleep(0.5)
+        if pressed[pygame.K_b]:
+            my_character.on_craft_bow_pressed(current_background)
+            pygame.display.update()
+            time.sleep(0.5)
+        if pressed[pygame.K_k]:
+            my_character.on_craft_knife_pressed(current_background)
+            pygame.display.update()
+            time.sleep(0.5)

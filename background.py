@@ -16,6 +16,7 @@ class Background:
     grass1Img = pygame.image.load('Grass1.png')
     grass2Img = pygame.image.load('Grass2.png')
     grass3Img = pygame.image.load('Grass3.png')
+    tentImg = pygame.image.load('Tent.png')
 
     display_width = 1280
     display_height = 720
