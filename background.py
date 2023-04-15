@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class Background:
-    SquareType = Enum('SquareType', ['GRASS', 'LOG', 'TREE', 'ROCK', 'TENT', 'CHICKEN', 'RIVER'])
+    SquareType = Enum('SquareType', ['GRASS', 'LOG', 'ROCK', 'TENT', 'RIVER'])
     square_image_dict = {}
 
     # filling background with grass
@@ -28,8 +28,6 @@ class Background:
 
     def drawBackground(self):
         # loading images
-        chickenImg = pygame.image.load('Galinha.png')
-        treeImg = pygame.image.load('Tree.png')
         logImg = pygame.image.load('Log.png')
         rockImg = pygame.image.load('Rock.png')
 
@@ -58,19 +56,11 @@ class Background:
         while currentHeight < self.display_height:
             while currentWidth < self.display_width:
                 randNumber = randrange(100)
-                if 30 >= randNumber > 25: # 5% chance to spawn chicken
-                    self.screen.blit(chickenImg, (currentWidth, currentHeight))
-                    self.square_image_dict[(currentWidth, currentHeight)] = chickenImg
-                    self.square_dict[(currentWidth, currentHeight)] = 'CHICKEN'
-                if 40 >= randNumber > 30: # 10% chance to spawn tree
-                    self.screen.blit(treeImg, (currentWidth, currentHeight))
-                    self.square_image_dict[(currentWidth, currentHeight)] = treeImg
-                    self.square_dict[(currentWidth, currentHeight)] = 'TREE'
-                if 50 >= randNumber > 40: # 10% chance to spawn log
+                if 50 >= randNumber > 20: # 30% chance to spawn log
                     self.screen.blit(logImg, (currentWidth, currentHeight))
                     self.square_image_dict[(currentWidth, currentHeight)] = logImg
                     self.square_dict[(currentWidth, currentHeight)] = 'LOG'
-                if 60 >= randNumber > 50: # 10% chance to spawn rock
+                if 80 >= randNumber > 50: # 30% chance to spawn rock
                     self.screen.blit(rockImg, (currentWidth, currentHeight))
                     self.square_image_dict[(currentWidth, currentHeight)] = rockImg
                     self.square_dict[(currentWidth, currentHeight)] = 'ROCK'
