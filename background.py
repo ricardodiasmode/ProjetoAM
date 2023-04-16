@@ -12,6 +12,10 @@ class Background:
         (0, 0): 'GRASS'
     }
 
+    rocks_location = []
+    logs_location = []
+    characters_location = []
+
     grass0Img = pygame.image.load('Grass0.png')
     grass1Img = pygame.image.load('Grass1.png')
     grass2Img = pygame.image.load('Grass2.png')
@@ -60,10 +64,12 @@ class Background:
                     self.screen.blit(logImg, (currentWidth, currentHeight))
                     self.square_image_dict[(currentWidth, currentHeight)] = logImg
                     self.square_dict[(currentWidth, currentHeight)] = 'LOG'
+                    self.logs_location.append((currentWidth, currentHeight))
                 if 80 >= randNumber > 50: # 30% chance to spawn rock
                     self.screen.blit(rockImg, (currentWidth, currentHeight))
                     self.square_image_dict[(currentWidth, currentHeight)] = rockImg
                     self.square_dict[(currentWidth, currentHeight)] = 'ROCK'
+                    self.rocks_location.append((currentWidth, currentHeight))
                 currentWidth += self.basic_square_size
             currentHeight += self.basic_square_size
             currentWidth = 0

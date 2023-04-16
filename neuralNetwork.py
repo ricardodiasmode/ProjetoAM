@@ -1,8 +1,9 @@
 import random
-import struct
-import time
 
-global Gerador
+LEARNING_RATE = 0.1
+INITIAL_WEIGHT_RATE = 1.0
+BIAS = 1
+
 
 def func(X):
     if X == 0:
@@ -12,14 +13,6 @@ def func(X):
     else:
         return 1
 
-def relu(X):
-    if X < 0:
-        return 0
-    else:
-        if X < 10000:
-            return X
-        else:
-            return 10000
 
 def reluDx(X):
     if X < 0:
@@ -27,9 +20,6 @@ def reluDx(X):
     else:
         return 1
 
-TAXA_APRENDIZADO = 0.1
-TAXA_PESO_INICIAL = 1.0
-BIAS = 1
 
 def relu(X):
     if X < 0:
@@ -39,193 +29,203 @@ def relu(X):
     else:
         return 10000
 
-class Neuronio:
-    def __init__(self, QuantidadeLigacoes):
-        self.Peso = [TAXA_PESO_INICIAL] * QuantidadeLigacoes
-        self.Erro = 0.0
-        self.Saida = 0.0
-        self.QuantidadeLigacoes = QuantidadeLigacoes
 
-class Camada:
-    def __init__(self, QuantidadeNeuronios, QuantidadeLigacoes):
-        self.QuantidadeNeuronios = QuantidadeNeuronios
-        self.Neuronios = [Neuronio(QuantidadeLigacoes) for i in range(QuantidadeNeuronios)]
+class Neuron:
+    def __init__(self, connection_amount):
+        self.weight = []
+        self.error = 0.0
+        self.out_value = 0.0
+        self.connection_amount = connection_amount
 
-class RedeNeural:
-    def __init__(self, QuantidadeEntrada, QuantidadeEscondidas, QuantidadeSaida):
-        self.CamadaEntrada = Camada(QuantidadeEntrada, 0)
-        self.CamadaEscondida = [Camada(QuantidadeEscondidas, QuantidadeEntrada) for i in range(QuantidadeEscondidas)]
-        self.CamadaSaida = Camada(QuantidadeSaida, QuantidadeEscondidas)
-        self.QuantidadeEscondidas = QuantidadeEscondidas
 
-def RNA_CopiarVetorParaCamadas(Rede, Vetor):
+class Layer:
+    def __init__(self, amount_neuron, amount_connections):
+        self.amount_neuron = amount_neuron
+        self.neurons = [Neuron(amount_connections) for i in range(amount_neuron)]
+
+
+class NeuralNetwork:
+    # hidden_layers_array is a array of int. The nth position is the number of neurons in the nth layer
+    def __init__(self, amount_of_entry_neurons, hidden_layers_array, amount_of_out_layer):
+        self.entry_layer = Layer(amount_of_entry_neurons, 0)
+        self.hidden_layer = [Layer(hidden_layers_array[i], amount_of_entry_neurons) for i in range(len(hidden_layers_array))]
+        self.out_layer = Layer(amount_of_out_layer, hidden_layers_array[-1])
+        self.amount_of_hidden_layers = len(hidden_layers_array)
+
+
+def RNA_CopiarVetorParaCamadas(neural_network, Vetor):
     j = 0
-    for i in range(Rede.QuantidadeEscondidas):
-        for k in range(Rede.CamadaEscondida[i].QuantidadeNeuronios):
-            for l in range(Rede.CamadaEscondida[i].Neuronios[k].QuantidadeLigacoes):
-                Rede.CamadaEscondida[i].Neuronios[k].Peso[l] = Vetor[j]
+    for i in range(neural_network.QuantidadeEscondidas):
+        for k in range(neural_network.hidden_layer[i].amount_neuron):
+            for l in range(neural_network.hidden_layer[i].Neuronios[k].QuantidadeLigacoes):
+                neural_network.hidden_layer[i].Neuronios[k].Peso[l] = Vetor[j]
                 j += 1
 
-    for k in range(Rede.CamadaSaida.QuantidadeNeuronios):
-        for l in range(Rede.CamadaSaida.Neuronios[k].QuantidadeLigacoes):
-            Rede.CamadaSaida.Neuronios[k].Peso[l] = Vetor[j]
+    for k in range(neural_network.out_layer.amount_neuron):
+        for l in range(neural_network.out_layer.Neuronios[k].QuantidadeLigacoes):
+            neural_network.out_layer.Neuronios[k].Peso[l] = Vetor[j]
             j += 1
 
-def RNA_CopiarCamadasParaVetor(Rede, Vetor):
+
+def RNA_CopiarCamadasParaVetor(neural_network, Vetor):
     j = 0
 
-    for i in range(Rede.QuantidadeEscondidas):
-        for k in range(Rede.CamadaEscondida[i].QuantidadeNeuronios):
-            for l in range(Rede.CamadaEscondida[i].Neuronios[k].QuantidadeLigacoes):
-                Vetor[j] = Rede.CamadaEscondida[i].Neuronios[k].Peso[l]
+    for i in range(neural_network.QuantidadeEscondidas):
+        for k in range(neural_network.hidden_layer[i].amount_neuron):
+            for l in range(neural_network.hidden_layer[i].Neuronios[k].QuantidadeLigacoes):
+                Vetor[j] = neural_network.hidden_layer[i].Neuronios[k].Peso[l]
                 j += 1
 
-    for k in range(Rede.CamadaSaida.QuantidadeNeuronios):
-        for l in range(Rede.CamadaSaida.Neuronios[k].QuantidadeLigacoes):
-            Vetor[j] = Rede.CamadaSaida.Neuronios[k].Peso[l]
+    for k in range(neural_network.out_layer.amount_neuron):
+        for l in range(neural_network.out_layer.Neuronios[k].QuantidadeLigacoes):
+            Vetor[j] = neural_network.out_layer.Neuronios[k].Peso[l]
             j += 1
 
-def RNA_CopiarParaEntrada(Rede, VetorEntrada):
-    for i in range(Rede.CamadaEntrada.QuantidadeNeuronios - BIAS):
-        Rede.CamadaEntrada.Neuronios[i].Saida = VetorEntrada[i]
 
-def RNA_QuantidadePesos(Rede):
-    Soma = 0
-    for i in range(Rede.QuantidadeEscondidas):
-        for j in range(Rede.CamadaEscondida[i].QuantidadeNeuronios):
-            Soma = Soma + Rede.CamadaEscondida[i].Neuronios[j].QuantidadeLigacoes
+def neural_network_copy_to_entry_layer(neural_network, entry_vector):
+    for i in range(neural_network.entry_layer.amount_neuron - BIAS):
+        neural_network.entry_layer.neurons[i].out_value = entry_vector[i]
 
-    for i in range(Rede.CamadaSaida.QuantidadeNeuronios):
-        Soma = Soma + Rede.CamadaSaida.Neuronios[i].QuantidadeLigacoes
-    return Soma
 
-def RNA_CopiarDaSaida(Rede, VetorSaida):
-    for i in range(Rede.CamadaSaida.QuantidadeNeuronios):
-        VetorSaida[i] = Rede.CamadaSaida.Neuronios[i].Saida
+def neural_network_get_weight_amount(neural_network):
+    Sum = 0
+    for i in range(neural_network.amount_of_hidden_layers):
+        for j in range(neural_network.hidden_layer[i].amount_neuron):
+            Sum = Sum + neural_network.hidden_layer[i].neurons[j].connection_amount
 
-def RNA_CalcularSaida(Rede):
-    Somatorio = 0
+    for i in range(neural_network.out_layer.amount_neuron):
+        Sum = Sum + neural_network.out_layer.neurons[i].connection_amount
+    return Sum
+
+
+def neural_network_copy_weights(neural_network, out_layer):
+    for i in range(neural_network.out_layer.amount_neuron):
+        out_layer[i] = neural_network.out_layer.neurons[i].out_value
+
+
+def neural_network_calculate_weights(neural_network):
     # Calculando saidas entre a camada de entrada e a primeira camada escondida
-    for i in range(Rede.CamadaEscondida[0].QuantidadeNeuronios - BIAS):
-        Somatorio = 0
-        for j in range(Rede.CamadaEntrada.QuantidadeNeuronios):
-            Somatorio += Rede.CamadaEntrada.Neuronios[j].Saida * Rede.CamadaEscondida[0].Neuronios[i].Peso[j]
-        Rede.CamadaEscondida[0].Neuronios[i].Saida = AtivacaoOcultas(Somatorio)
+    for i in range(neural_network.hidden_layer[0].amount_neuron - BIAS):
+        summation = 0
+        for j in range(neural_network.entry_layer.amount_neuron):
+            print(len(neural_network.entry_layer.neurons))
+            print(len(neural_network.hidden_layer))
+            print(len(neural_network.hidden_layer[0].neurons))
+            print(len(neural_network.hidden_layer[0].neurons[i].weight))
+            summation += neural_network.entry_layer.neurons[j].out_value * \
+                         neural_network.hidden_layer[0].neurons[i].weight[j]
+        neural_network.hidden_layer[0].neurons[i].out_value = relu(summation)
 
     # Calculando saidas entre a camada escondida k e a camada escondida k-1
-    for k in range(1, Rede.QuantidadeEscondidas):
-        for i in range(Rede.CamadaEscondida[k].QuantidadeNeuronios - BIAS):
-            Somatorio = 0
-            for j in range(Rede.CamadaEscondida[k-1].QuantidadeNeuronios):
-                Somatorio += Rede.CamadaEscondida[k-1].Neuronios[j].Saida * Rede.CamadaEscondida[k].Neuronios[i].Peso[j]
-            Rede.CamadaEscondida[k].Neuronios[i].Saida = AtivacaoOcultas(Somatorio)
+    for k in range(1, neural_network.amount_of_hidden_layers):
+        for i in range(neural_network.hidden_layer[k].amount_neuron - BIAS):
+            summation = 0
+            for j in range(neural_network.hidden_layer[k-1].amount_neuron):
+                summation += neural_network.hidden_layer[k-1].neurons[j].out_value * neural_network.hidden_layer[k].neurons[i].weight[j]
+            neural_network.hidden_layer[k].neurons[i].out_value = relu(summation)
 
     # Calculando saidas entre a camada de saida e a ultima camada escondida
-    for i in range(Rede.CamadaSaida.QuantidadeNeuronios):
-        Somatorio = 0
-        for j in range(Rede.CamadaEscondida[k-1].QuantidadeNeuronios):
-            Somatorio += Rede.CamadaEscondida[k-1].Neuronios[j].Saida * Rede.CamadaSaida.Neuronios[i].Peso[j]
-        Rede.CamadaSaida.Neuronios[i].Saida = AtivacaoSaida(Somatorio)
+    for i in range(neural_network.out_layer.amount_neuron):
+        summation = 0
+        for j in range(neural_network.hidden_layer[k-1].amount_neuron):
+            summation += neural_network.hidden_layer[k-1].neurons[j].out_value * neural_network.out_layer.neurons[i].Peso[j]
+        neural_network.out_layer.neurons[i].out_value = relu(summation)
 
-def RNA_CriarNeuronio(Neuron, QuantidadeLigacoes):
-    Neuron.QuantidadeLigacoes = QuantidadeLigacoes
-    Neuron.Peso = [0] * QuantidadeLigacoes
 
-    for i in range(QuantidadeLigacoes):
+def neural_network_create_neuron(connection_amount):
+    neuron = Neuron(connection_amount)
+
+    for i in range(connection_amount):
         if random.randint(0, 1) == 0:
-            Neuron.Peso[i] = random.uniform(0, 1) / TAXA_PESO_INICIAL
+            neuron.weight.append(random.uniform(0, 1) / INITIAL_WEIGHT_RATE)
         else:
-            Neuron.Peso[i] = -random.uniform(0, 1) / TAXA_PESO_INICIAL
+            neuron.weight.append(-random.uniform(0, 1) / INITIAL_WEIGHT_RATE)
 
-    Neuron.Erro = 0
-    Neuron.Saida = 1
+    neuron.error = 0
+    neuron.out_value = 1
+    return neuron
 
-def RNA_CriarRedeNeural(QuantidadeEscondidas, QtdNeuroniosEntrada, QtdNeuroniosEscondida, QtdNeuroniosSaida):
-    QtdNeuroniosEntrada = QtdNeuroniosEntrada + BIAS
-    QtdNeuroniosEscondida = QtdNeuroniosEscondida + BIAS
-    Rede = RedeNeural()
-    Rede.CamadaEntrada.QuantidadeNeuronios = QtdNeuroniosEntrada
-    Rede.CamadaEntrada.Neuronios = []
 
-    for i in range(QtdNeuroniosEntrada):
-        Neuronio = Neuronio()
-        Neuronio.Saida = 1.0
-        Rede.CamadaEntrada.Neuronios.append(Neuronio)
+# hidden_amount is an array of integers. The nth position is the number of neurons in the nth layer
+def neural_network_create(hidden_amount, entry_neuron_amount, out_neuron_amount):
+    entry_neuron_amount += BIAS
+    for i in range(len(hidden_amount)):
+        hidden_amount[i] += BIAS
+    neural_network = NeuralNetwork(entry_neuron_amount, hidden_amount, out_neuron_amount)
 
-    Rede.QuantidadeEscondidas = QuantidadeEscondidas
-    Rede.CamadaEscondida = []
+    neural_network.entry_layer.amount_neuron = entry_neuron_amount
+    for i in range(entry_neuron_amount):
+        neuron = Neuron(hidden_amount[0])
+        neuron.out_value = 1.0
+        neural_network.entry_layer.neurons.append(neuron)
 
-    for i in range(QuantidadeEscondidas):
-        Camada = Camada()
-        Camada.QuantidadeNeuronios = QtdNeuroniosEscondida
-        Camada.Neuronios = []
+    for i in range(len(hidden_amount)):
+        connection_amount = hidden_amount[i]
+        layer = Layer(hidden_amount[i], connection_amount)
+        layer.amount_neuron = hidden_amount[i]
 
-        for j in range(QtdNeuroniosEscondida):
+        for j in range(hidden_amount[i]):
             if i == 0:
-                Neuronio = RNA_CriarNeuronio(QtdNeuroniosEntrada)
+                neural_network.hidden_layer[i].neurons.append(neural_network_create_neuron(entry_neuron_amount))
             else:
-                Neuronio = RNA_CriarNeuronio(QtdNeuroniosEscondida)
+                neural_network.hidden_layer[i].neurons.append(neural_network_create_neuron(hidden_amount[i]))
 
-            Camada.Neuronios.append(Neuronio)
+        neural_network.hidden_layer.append(layer)
 
-        Rede.CamadaEscondida.append(Camada)
+    neural_network.out_layer.amount_neuron = out_neuron_amount
+    for j in range(out_neuron_amount):
+        neural_network.out_layer.neurons.append(neural_network_create_neuron(out_neuron_amount))
 
-    Rede.CamadaSaida.QuantidadeNeuronios = QtdNeuroniosSaida
-    Rede.CamadaSaida.Neuronios = []
+    return neural_network
 
-    for j in range(QtdNeuroniosSaida):
-        Neuronio = RNA_CriarNeuronio(QtdNeuroniosEscondida)
-        Rede.CamadaSaida.Neuronios.append(Neuronio)
 
-    return Rede
+# def neural_network_load(String):
+#     with open(String, "rb") as f:
+#         QtdEscondida, QtdNeuroEntrada, QtdNeuroEscondida, QtdNeuroSaida = struct.unpack("iiii", f.read(16))
+#
+#         Temp = RNA_Criarneural_networkNeural(QtdEscondida, QtdNeuroEntrada, QtdNeuroEscondida, QtdNeuroSaida)
+#
+#         for k in range(Temp.QuantidadeEscondidas):
+#             for i in range(Temp.hidden_layer[k].amount_neuron):
+#                 for j in range(Temp.hidden_layer[k].Neuronios[i].QuantidadeLigacoes):
+#                     Temp.hidden_layer[k].Neuronios[i].Peso[j] = struct.unpack("d", f.read(8))[0]
+#         for i in range(Temp.out_layer.amount_neuron):
+#             for j in range(Temp.out_layer.Neuronios[i].QuantidadeLigacoes):
+#                 Temp.out_layer.Neuronios[i].Peso[j] = struct.unpack("d", f.read(8))[0]
+#
+#         return Temp
 
-def RNA_CarregarRede(String):
-    with open(String, "rb") as f:
-        QtdEscondida, QtdNeuroEntrada, QtdNeuroEscondida, QtdNeuroSaida = struct.unpack("iiii", f.read(16))
+# def neural_network_save(Temp, String):
+#     with open(String, "wb") as f:
+#     f.write(struct.pack("i", Temp.QuantidadeEscondidas))
+#     f.write(struct.pack("i", Temp.CamadaEntrada.amount_neuron))
+#     f.write(struct.pack("i", Temp.hidden_layer[0].amount_neuron))
+#     f.write(struct.pack("i", Temp.out_layer.amount_neuron))
+#     for k in range(Temp.QuantidadeEscondidas):
+#         for i in range(Temp.hidden_layer[k].amount_neuron):
+#             for j in range(Temp.hidden_layer[k].Neuronios[i].QuantidadeLigacoes):
+#                 f.write(struct.pack("d", Temp.hidden_layer[k].Neuronios[i].Peso[j]))
+#
+#     for i in range(Temp.out_layer.amount_neuron):
+#         for j in range(Temp.out_layer.Neuronios[i].QuantidadeLigacoes):
+#             f.write(struct.pack("d", Temp.out_layer.Neuronios[i].Peso[j]))
 
-        Temp = RNA_CriarRedeNeural(QtdEscondida, QtdNeuroEntrada, QtdNeuroEscondida, QtdNeuroSaida)
-
-        for k in range(Temp.QuantidadeEscondidas):
-            for i in range(Temp.CamadaEscondida[k].QuantidadeNeuronios):
-                for j in range(Temp.CamadaEscondida[k].Neuronios[i].QuantidadeLigacoes):
-                    Temp.CamadaEscondida[k].Neuronios[i].Peso[j] = struct.unpack("d", f.read(8))[0]
-        for i in range(Temp.CamadaSaida.QuantidadeNeuronios):
-            for j in range(Temp.CamadaSaida.Neuronios[i].QuantidadeLigacoes):
-                Temp.CamadaSaida.Neuronios[i].Peso[j] = struct.unpack("d", f.read(8))[0]
-
-        return Temp
-
-def RNA_SalvarRede(Temp, String):
-    with open(String, "wb") as f:
-    f.write(struct.pack("i", Temp.QuantidadeEscondidas))
-    f.write(struct.pack("i", Temp.CamadaEntrada.QuantidadeNeuronios))
-    f.write(struct.pack("i", Temp.CamadaEscondida[0].QuantidadeNeuronios))
-    f.write(struct.pack("i", Temp.CamadaSaida.QuantidadeNeuronios))
-    for k in range(Temp.QuantidadeEscondidas):
-        for i in range(Temp.CamadaEscondida[k].QuantidadeNeuronios):
-            for j in range(Temp.CamadaEscondida[k].Neuronios[i].QuantidadeLigacoes):
-                f.write(struct.pack("d", Temp.CamadaEscondida[k].Neuronios[i].Peso[j]))
-
-    for i in range(Temp.CamadaSaida.QuantidadeNeuronios):
-        for j in range(Temp.CamadaSaida.Neuronios[i].QuantidadeLigacoes):
-            f.write(struct.pack("d", Temp.CamadaSaida.Neuronios[i].Peso[j]))
-
-def RNA_ImprimirPesos(Temp):
-    for k in range(Temp.QuantidadeEscondidas):
-        print("Camada escondida", k)
-        for i in range(Temp.CamadaEscondida[k].QuantidadeNeuronios):
-            print("\tNeuronio", i)
-            for j in range(Temp.CamadaEscondida[k].Neuronios[i].QuantidadeLigacoes):
-                print("\t\tPeso", j, ":", Temp.CamadaEscondida[k].Neuronios[i].Peso[j])
-
-    print("Camada saida", k)
-    for i in range(Temp.CamadaSaida.QuantidadeNeuronios):
-        print("\tNeuronio", i)
-        for j in range(Temp.CamadaSaida.Neuronios[i].QuantidadeLigacoes):
-            print("\t\tPeso", j, ":", Temp.CamadaSaida.Neuronios[i].Peso[j])
-
-def InicializarGeradorAleatorio():
-    Gerador = random.Random()
-    Gerador.seed(time.time())
+# def RNA_ImprimirPesos(Temp):
+#     for k in range(Temp.QuantidadeEscondidas):
+#         print("Camada escondida", k)
+#         for i in range(Temp.hidden_layer[k].amount_neuron):
+#             print("\tNeuronio", i)
+#             for j in range(Temp.hidden_layer[k].Neuronios[i].QuantidadeLigacoes):
+#                 print("\t\tPeso", j, ":", Temp.hidden_layer[k].Neuronios[i].Peso[j])
+#
+#     print("Camada saida", k)
+#     for i in range(Temp.out_layer.amount_neuron):
+#         print("\tNeuronio", i)
+#         for j in range(Temp.out_layer.Neuronios[i].QuantidadeLigacoes):
+#             print("\t\tPeso", j, ":", Temp.out_layer.Neuronios[i].Peso[j])
+#
+# def InicializarGeradorAleatorio():
+#     Gerador = random.Random()
+#     Gerador.seed(time.time())
 
 

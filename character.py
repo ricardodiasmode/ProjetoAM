@@ -1,4 +1,11 @@
+import random
+
 import pygame
+import neuralNetwork
+
+AMOUNT_ENTRY_NEURON = 8
+AMOUNT_HIDDEN_NEURON = [1, 2, 2, 2]
+AMOUNT_OUT_NEURON = 9
 
 
 class Character:
@@ -9,6 +16,7 @@ class Character:
     has_knife = False
     current_game_mode = None
     current_team_is_blue = False
+    brain = None
 
     def __init__(self, position, current_background, game_mode, blue_team):
         list_of_tuple = list(position)
@@ -19,8 +27,13 @@ class Character:
         self.current_game_mode = game_mode
         self.current_team_is_blue = blue_team
 
-    def ia_loop(self, all_rocks_locations, all_logs_location, all_enemy_characters_locations):
+        # initializing neural network
+        self.brain = neuralNetwork.neural_network_create(AMOUNT_HIDDEN_NEURON, AMOUNT_ENTRY_NEURON, AMOUNT_OUT_NEURON)
+        for i in range(neuralNetwork.neural_network_get_weight_amount(self.brain)):
+            self.dna = self.random_dna()
 
+    def random_dna(self):
+        return (random.randint(0, 20000) / 10.0) - 1000.0
 
     def add_position(self, position, current_background):
         img_to_override = current_background.square_image_dict[self.current_position]
@@ -85,15 +98,13 @@ class Character:
         # TODO: Create a AI character
 
     def can_create_knife(self):
-        return not self.has_bow and not self.has_knife and self.has_log \
+        return self.has_knife and self.has_log \
                 and self.has_rock;
 
     def on_craft_knife_pressed(self, current_background):
         if self.can_create_knife():
             self.has_log = False
             self.has_rock = False
-            self.has_vine = False
-            self.has_feather = False
             self.has_knife = True
             if self.current_team_is_blue:
                 self.playerImg = pygame.image.load('BlueCharacterWithKnife.png')

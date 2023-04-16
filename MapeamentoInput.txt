@@ -1,37 +1,42 @@
 A AI pode:
 - Andar;
 - Fazer cabana;
-- Fazer arco e flecha;
 - Fazer faca;
 - Fazer tenda;
 - Pegar tronco;
 - Pegar pedra;
-- Pegar pena;
-- Pegar cipó;
-- Atirar no boneco;
 - Esfaquear boneco;
 
-Hiperparametros:
-*As localizações são relativas ao character
 Primeira camada:
-- Se tem ou não um arco;
 - Se tem ou não uma faca;
-- Se pode ou não construir tenda;
 
 Segunda camada:
-- Se pode ou não construir arco;
-- Se pode ou não construir faca;
-- Localização de todas as pedras;
-- Localização de todas as galinhas;
-- Localização de todas as árvores;
-- Localização de todos os outros bonecos;
+- Tem log;
+- Tem rock;
+
+Terceira camada:
+- Tem rock;
+- Tem log;
+
+Quarta camada:
+- Pode construir tenda;
+- Pode construir knife;
+
+Saída:
+- Andar w;
+- Andar s;
+- Andar a;
+- Andar d;
+- Atacar;
+- Pegar rock;
+- Pegar log;
+- Construir tenda;
+- Construir knife;
+
 
 Saída:
 - Se pode construir tenda -> construir tenda;
 - Se não pode construir tenda -> fluxo abaixo
-- Se tem arco -> Andar/Matar com arco;
-- Se não tem arco -> Se pode construir arco -> construir arco;
-- Se não tem arco -> Se não pode construir arco -> Andar/Pegar pedra/Pegar pena/Pegar cipó;
 - Se tem faca -> Andar/Matar com faca;
-- Se não tem faca -> Se não pode construir faca -> Andar/Pegar pedra/Pegar pena/Pegar cipó;
+- Se não tem faca -> Se não pode construir faca -> Andar/Pegar pedra/Pegar tronco;
 - Se não tem faca -> Se pode construir faca -> construir faca;
