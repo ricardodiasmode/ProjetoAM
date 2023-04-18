@@ -105,13 +105,13 @@ def neural_network_copy_weights(neural_network, out_layer):
 
 def neural_network_calculate_weights(neural_network):
     # Calculando saidas entre a camada de entrada e a primeira camada escondida
+    print(len(neural_network.entry_layer.neurons))
+    print(len(neural_network.hidden_layer))
+    print(len(neural_network.hidden_layer[0].neurons))
+    print(len(neural_network.hidden_layer[0].neurons[0].weight))
     for i in range(neural_network.hidden_layer[0].amount_neuron - BIAS):
         summation = 0
         for j in range(neural_network.entry_layer.amount_neuron):
-            print(len(neural_network.entry_layer.neurons))
-            print(len(neural_network.hidden_layer))
-            print(len(neural_network.hidden_layer[0].neurons))
-            print(len(neural_network.hidden_layer[0].neurons[i].weight))
             summation += neural_network.entry_layer.neurons[j].out_value * \
                          neural_network.hidden_layer[0].neurons[i].weight[j]
         neural_network.hidden_layer[0].neurons[i].out_value = relu(summation)
@@ -128,22 +128,30 @@ def neural_network_calculate_weights(neural_network):
     for i in range(neural_network.out_layer.amount_neuron):
         summation = 0
         for j in range(neural_network.hidden_layer[k-1].amount_neuron):
-            summation += neural_network.hidden_layer[k-1].neurons[j].out_value * neural_network.out_layer.neurons[i].Peso[j]
+            summation += neural_network.hidden_layer[k-1].neurons[j].out_value * neural_network.out_layer.neurons[i].weight[j]
         neural_network.out_layer.neurons[i].out_value = relu(summation)
 
 
-def neural_network_create_neuron(connection_amount):
+def neural_network_create_neuron(neural_network, connection_amount, is_hidden_layer, hidden_layer_index):
     neuron = Neuron(connection_amount)
-
-    for i in range(connection_amount):
-        if random.randint(0, 1) == 0:
-            neuron.weight.append(random.uniform(0, 1) / INITIAL_WEIGHT_RATE)
-        else:
-            neuron.weight.append(-random.uniform(0, 1) / INITIAL_WEIGHT_RATE)
-
     neuron.error = 0
     neuron.out_value = 1
-    return neuron
+    if is_hidden_layer:
+        neural_network.hidden_layer[hidden_layer_index].neurons.append(neuron)
+    else:
+        neural_network.out_layer.neurons.append(neuron)
+
+    for i in range(neuron.connection_amount):
+        if random.randint(0, 1) == 0:
+            weightToAdd = random.uniform(0, 1) / INITIAL_WEIGHT_RATE
+        else:
+            weightToAdd = -random.uniform(0, 1) / INITIAL_WEIGHT_RATE
+        if is_hidden_layer:
+            neural_network.hidden_layer[hidden_layer_index].neurons[-1].weight.append(weightToAdd)
+            if hidden_layer_index == 0 and i == 0 and len(neural_network.hidden_layer[hidden_layer_index].neurons) == 1:
+                print("len: ", len(neural_network.hidden_layer[hidden_layer_index].neurons[-1].weight))
+        else:
+            neural_network.out_layer.neurons[-1].weight.append(weightToAdd)
 
 
 # hidden_amount is an array of integers. The nth position is the number of neurons in the nth layer
@@ -166,15 +174,14 @@ def neural_network_create(hidden_amount, entry_neuron_amount, out_neuron_amount)
 
         for j in range(hidden_amount[i]):
             if i == 0:
-                neural_network.hidden_layer[i].neurons.append(neural_network_create_neuron(entry_neuron_amount))
+                neural_network_create_neuron(neural_network, entry_neuron_amount, True, i)
             else:
-                neural_network.hidden_layer[i].neurons.append(neural_network_create_neuron(hidden_amount[i]))
-
+                neural_network_create_neuron(neural_network, hidden_amount[i], True, i)
         neural_network.hidden_layer.append(layer)
 
     neural_network.out_layer.amount_neuron = out_neuron_amount
     for j in range(out_neuron_amount):
-        neural_network.out_layer.neurons.append(neural_network_create_neuron(out_neuron_amount))
+        neural_network_create_neuron(neural_network, out_neuron_amount, False, -1)
 
     return neural_network
 
