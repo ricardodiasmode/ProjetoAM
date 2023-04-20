@@ -35,7 +35,7 @@ class Character:
     def random_dna(self):
         return (random.randint(0, 20000) / 10.0) - 1000.0
 
-    def add_position(self, position, current_background):
+    def move(self, position, current_background):
         img_to_override = current_background.square_image_dict[self.current_position]
         current_background.screen.blit(img_to_override, self.current_position)
         list_of_tuple = list(self.current_position)
@@ -111,3 +111,4 @@ class Character:
             else:
                 self.playerImg = pygame.image.load('RedCharacterWithKnife.png')
             current_background.screen.blit(self.playerImg, self.current_position)
+

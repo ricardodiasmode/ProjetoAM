@@ -34,7 +34,7 @@ class Neuron:
     def __init__(self, connection_amount):
         self.weight = []
         self.error = 0.0
-        self.out_value = 0.0
+        self.out_value = 1.0
         self.connection_amount = connection_amount
 
 
@@ -98,9 +98,11 @@ def neural_network_get_weight_amount(neural_network):
     return Sum
 
 
-def neural_network_copy_weights(neural_network, out_layer):
+def neural_network_copy_weights(neural_network):
+    out_layer = []
     for i in range(neural_network.out_layer.amount_neuron):
-        out_layer[i] = neural_network.out_layer.neurons[i].out_value
+        out_layer.append(neural_network.out_layer.neurons[i].out_value)
+    return out_layer
 
 
 def neural_network_calculate_weights(neural_network):
@@ -132,26 +134,13 @@ def neural_network_calculate_weights(neural_network):
         neural_network.out_layer.neurons[i].out_value = relu(summation)
 
 
-def neural_network_create_neuron(neural_network, connection_amount, is_hidden_layer, hidden_layer_index):
-    neuron = Neuron(connection_amount)
-    neuron.error = 0
-    neuron.out_value = 1
-    if is_hidden_layer:
-        neural_network.hidden_layer[hidden_layer_index].neurons.append(neuron)
-    else:
-        neural_network.out_layer.neurons.append(neuron)
-
+def neural_network_initialize_neuron_weight(neuron):
     for i in range(neuron.connection_amount):
         if random.randint(0, 1) == 0:
             weightToAdd = random.uniform(0, 1) / INITIAL_WEIGHT_RATE
         else:
             weightToAdd = -random.uniform(0, 1) / INITIAL_WEIGHT_RATE
-        if is_hidden_layer:
-            neural_network.hidden_layer[hidden_layer_index].neurons[-1].weight.append(weightToAdd)
-            if hidden_layer_index == 0 and i == 0 and len(neural_network.hidden_layer[hidden_layer_index].neurons) == 1:
-                print("len: ", len(neural_network.hidden_layer[hidden_layer_index].neurons[-1].weight))
-        else:
-            neural_network.out_layer.neurons[-1].weight.append(weightToAdd)
+        neuron.weight.append(weightToAdd)
 
 
 # hidden_amount is an array of integers. The nth position is the number of neurons in the nth layer
@@ -161,27 +150,20 @@ def neural_network_create(hidden_amount, entry_neuron_amount, out_neuron_amount)
         hidden_amount[i] += BIAS
     neural_network = NeuralNetwork(entry_neuron_amount, hidden_amount, out_neuron_amount)
 
-    neural_network.entry_layer.amount_neuron = entry_neuron_amount
     for i in range(entry_neuron_amount):
         neuron = Neuron(hidden_amount[0])
-        neuron.out_value = 1.0
-        neural_network.entry_layer.neurons.append(neuron)
+        neural_network.entry_layer.neurons[i] = neuron
 
     for i in range(len(hidden_amount)):
-        connection_amount = hidden_amount[i]
-        layer = Layer(hidden_amount[i], connection_amount)
-        layer.amount_neuron = hidden_amount[i]
+        layer = Layer(hidden_amount[i], hidden_amount[i])
 
         for j in range(hidden_amount[i]):
-            if i == 0:
-                neural_network_create_neuron(neural_network, entry_neuron_amount, True, i)
-            else:
-                neural_network_create_neuron(neural_network, hidden_amount[i], True, i)
+            neural_network_initialize_neuron_weight(neural_network.hidden_layer[i].neurons[j])
+
         neural_network.hidden_layer.append(layer)
 
-    neural_network.out_layer.amount_neuron = out_neuron_amount
-    for j in range(out_neuron_amount):
-        neural_network_create_neuron(neural_network, out_neuron_amount, False, -1)
+    for i in range(out_neuron_amount):
+        neural_network_initialize_neuron_weight(neural_network.out_layer.neurons[i])
 
     return neural_network
 
