@@ -20,7 +20,7 @@ class Character:
 
     def __init__(self, position, current_background, game_mode, blue_team):
         list_of_tuple = list(position)
-        list_of_tuple[1] += 24 # image offset
+        list_of_tuple[1] += 24  # image offset
         position = tuple(list_of_tuple)
         self.current_position = position
         current_background.screen.blit(self.playerImg, position)
@@ -36,6 +36,12 @@ class Character:
         return (random.randint(0, 20000) / 10.0) - 1000.0
 
     def move(self, position, current_background):
+
+        if position[0] + self.current_position[0] < 0 or position[0] + self.current_position[
+            0] >= current_background.display_width or position[1] + self.current_position[1] < 0 or position[1] + \
+                self.current_position[1] >= current_background.display_height:
+            return
+
         img_to_override = current_background.square_image_dict[self.current_position]
         current_background.screen.blit(img_to_override, self.current_position)
         list_of_tuple = list(self.current_position)
@@ -99,7 +105,7 @@ class Character:
 
     def can_create_knife(self):
         return self.has_knife and self.has_log \
-                and self.has_rock;
+               and self.has_rock;
 
     def on_craft_knife_pressed(self, current_background):
         if self.can_create_knife():
@@ -111,4 +117,3 @@ class Character:
             else:
                 self.playerImg = pygame.image.load('RedCharacterWithKnife.png')
             current_background.screen.blit(self.playerImg, self.current_position)
-

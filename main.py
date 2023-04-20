@@ -83,5 +83,5 @@ while not done:
     pygame.display.update()
     clock.tick(60)
 
-    # we need to see what is happenning
+    # we need to see what is happening
     time.sleep(0.1)

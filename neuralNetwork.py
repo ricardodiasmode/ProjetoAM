@@ -107,10 +107,6 @@ def neural_network_copy_weights(neural_network):
 
 def neural_network_calculate_weights(neural_network):
     # Calculando saidas entre a camada de entrada e a primeira camada escondida
-    print(len(neural_network.entry_layer.neurons))
-    print(len(neural_network.hidden_layer))
-    print(len(neural_network.hidden_layer[0].neurons))
-    print(len(neural_network.hidden_layer[0].neurons[0].weight))
     for i in range(neural_network.hidden_layer[0].amount_neuron - BIAS):
         summation = 0
         for j in range(neural_network.entry_layer.amount_neuron):
