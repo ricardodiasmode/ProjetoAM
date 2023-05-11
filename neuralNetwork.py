@@ -195,22 +195,5 @@ def neural_network_create(hidden_amount, entry_neuron_amount, out_neuron_amount)
 #         for j in range(Temp.out_layer.Neuronios[i].QuantidadeLigacoes):
 #             f.write(struct.pack("d", Temp.out_layer.Neuronios[i].Peso[j]))
 
-# def RNA_ImprimirPesos(Temp):
-#     for k in range(Temp.QuantidadeEscondidas):
-#         print("Camada escondida", k)
-#         for i in range(Temp.hidden_layer[k].amount_neuron):
-#             print("\tNeuronio", i)
-#             for j in range(Temp.hidden_layer[k].Neuronios[i].QuantidadeLigacoes):
-#                 print("\t\tPeso", j, ":", Temp.hidden_layer[k].Neuronios[i].Peso[j])
-#
-#     print("Camada saida", k)
-#     for i in range(Temp.out_layer.amount_neuron):
-#         print("\tNeuronio", i)
-#         for j in range(Temp.out_layer.Neuronios[i].QuantidadeLigacoes):
-#             print("\t\tPeso", j, ":", Temp.out_layer.Neuronios[i].Peso[j])
-#
-# def InicializarGeradorAleatorio():
-#     Gerador = random.Random()
-#     Gerador.seed(time.time())
 
 
