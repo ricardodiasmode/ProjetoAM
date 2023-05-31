@@ -45,7 +45,7 @@ class Layer:
 
 
 class NeuralNetwork:
-    # hidden_layers_array is a array of int. The nth position is the number of neurons in the nth layer
+    # hidden_layers_array is an array of int. The nth position is the number of neurons in the nth layer
     def __init__(self, amount_of_entry_neurons, hidden_layers_array, amount_of_out_layer):
         self.entry_layer = Layer(amount_of_entry_neurons, 0)
         self.hidden_layer = [Layer(hidden_layers_array[i], amount_of_entry_neurons) for i in range(len(hidden_layers_array))]
@@ -114,29 +114,32 @@ def neural_network_calculate_weights(neural_network):
                          neural_network.hidden_layer[0].neurons[i].weight[j]
         neural_network.hidden_layer[0].neurons[i].out_value = relu(summation)
 
+    k = 0
     # Calculando saidas entre a camada escondida k e a camada escondida k-1
     for k in range(1, neural_network.amount_of_hidden_layers):
         for i in range(neural_network.hidden_layer[k].amount_neuron - BIAS):
             summation = 0
             for j in range(neural_network.hidden_layer[k-1].amount_neuron):
-                summation += neural_network.hidden_layer[k-1].neurons[j].out_value * neural_network.hidden_layer[k].neurons[i].weight[j]
+                summation += neural_network.hidden_layer[k-1].neurons[j].out_value * \
+                             neural_network.hidden_layer[k].neurons[i].weight[j]
             neural_network.hidden_layer[k].neurons[i].out_value = relu(summation)
 
     # Calculando saidas entre a camada de saida e a ultima camada escondida
     for i in range(neural_network.out_layer.amount_neuron):
         summation = 0
         for j in range(neural_network.hidden_layer[k-1].amount_neuron):
-            summation += neural_network.hidden_layer[k-1].neurons[j].out_value * neural_network.out_layer.neurons[i].weight[j]
+            summation += neural_network.hidden_layer[k-1].neurons[j].out_value * \
+                         neural_network.out_layer.neurons[i].weight[j]
         neural_network.out_layer.neurons[i].out_value = relu(summation)
 
 
 def neural_network_initialize_neuron_weight(neuron):
     for i in range(neuron.connection_amount):
         if random.randint(0, 1) == 0:
-            weightToAdd = random.uniform(0, 1) / INITIAL_WEIGHT_RATE
+            weight_to_add = random.uniform(0, 1) / INITIAL_WEIGHT_RATE
         else:
-            weightToAdd = -random.uniform(0, 1) / INITIAL_WEIGHT_RATE
-        neuron.weight.append(weightToAdd)
+            weight_to_add = -random.uniform(0, 1) / INITIAL_WEIGHT_RATE
+        neuron.weight.append(weight_to_add)
 
 
 # hidden_amount is an array of integers. The nth position is the number of neurons in the nth layer

@@ -17,6 +17,7 @@ class Character:
     current_game_mode = None
     current_team_is_blue = False
     brain = None
+    dna = None
 
     def __init__(self, position, current_background, game_mode, blue_team):
         list_of_tuple = list(position)
@@ -105,7 +106,7 @@ class Character:
 
     def can_create_knife(self):
         return self.has_knife and self.has_log \
-               and self.has_rock;
+               and self.has_rock
 
     def on_craft_knife_pressed(self, current_background):
         if self.can_create_knife():

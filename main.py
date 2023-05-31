@@ -7,13 +7,12 @@ import math
 import time
 
 
-
 def get_closest_location(location_to_compare, locations_array):
     closest_location_index = 0
     closest_distance = 9999999
     for i in range(len(locations_array)):
         current_dist = math.sqrt((location_to_compare[0] - locations_array[i][0]) ** 2 + (
-                    location_to_compare[1] - locations_array[i][1]) ** 2)
+                location_to_compare[1] - locations_array[i][1]) ** 2)
         if closest_distance > current_dist:
             closest_distance = current_dist
             closest_location_index = i
@@ -21,11 +20,15 @@ def get_closest_location(location_to_compare, locations_array):
 
 
 def get_entry_params(current_character_ref, current_background_ref):
-    entry_params_to_return = [current_character_ref.has_knife, current_character_ref.has_log, current_character_ref.has_rock,
-                  current_character_ref.can_create_tent(), current_character_ref.can_create_knife(),
-                  get_closest_location(current_character_ref.current_position, current_background_ref.rocks_location),
-                  get_closest_location(current_character_ref.current_position, current_background_ref.logs_location),
-                  get_closest_location(current_character_ref.current_position, current_background_ref.characters_location)]
+    entry_params_to_return = [current_character_ref.has_knife, current_character_ref.has_log,
+                              current_character_ref.has_rock,
+                              current_character_ref.can_create_tent(), current_character_ref.can_create_knife(),
+                              get_closest_location(current_character_ref.current_position,
+                                                   current_background_ref.rocks_location),
+                              get_closest_location(current_character_ref.current_position,
+                                                   current_background_ref.logs_location),
+                              get_closest_location(current_character_ref.current_position,
+                                                   current_background_ref.characters_location)]
 
     return entry_params_to_return
 
@@ -40,7 +43,8 @@ def react_given_out_param(current_background, current_character, out_params):
     elif out_params[3]:
         current_character.move((64, 0), current_background)
     elif out_params[4]:
-        current_character.attack()
+        if current_character.has_knife:
+            current_character.attack()
     elif out_params[5]:
         current_character.on_interact(current_background)
     elif out_params[6]:
@@ -63,9 +67,10 @@ middle_of_screen = (current_background.display_width / 2, current_background.dis
 number_of_characters_each_team = 1
 for i in range(number_of_characters_each_team * 2):
     game_mode.characters.append(character.Character(middle_of_screen, current_background, game_mode,
-                                                            i >= number_of_characters_each_team / 2))
+                                                    i >= number_of_characters_each_team / 2))
 
 done = False
+current_turn = 0
 # event loop
 while not done:
     for event in pygame.event.get():
@@ -85,3 +90,20 @@ while not done:
 
     # we need to see what is happening
     time.sleep(0.1)
+
+    # die after 10 turns if character has no knife
+    if current_turn == 10:
+        for current_character in game_mode.characters:
+            if not current_character.has_knife:
+                current_character.die()
+
+    # die after 20 turns if character has knife and didn't kill anyone
+    if current_turn == 20:
+        for current_character in game_mode.characters:
+            if current_character.has_knife and not current_character.has_killed:
+                current_character.die()
+
+    current_turn += 1
+
+    if game_mode.check_if_game_over():
+        game_mode.reset_game()
