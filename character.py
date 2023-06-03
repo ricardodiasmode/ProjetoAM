@@ -1,3 +1,4 @@
+import math
 import random
 
 import pygame
@@ -16,14 +17,19 @@ class Character:
     has_knife = False
     current_game_mode = None
     current_team_is_blue = False
+    closest_enemy = None
+
     brain = None
-    dna = None
+    dna = []
+    fitness = 0
 
     def __init__(self, position, current_background, game_mode, blue_team):
         list_of_tuple = list(position)
         list_of_tuple[1] += 24  # image offset
         position = tuple(list_of_tuple)
         self.current_position = position
+        if not blue_team:
+            self.playerImg = pygame.image.load('RedCharacter.png')
         current_background.screen.blit(self.playerImg, position)
         self.current_game_mode = game_mode
         self.current_team_is_blue = blue_team
@@ -31,7 +37,7 @@ class Character:
         # initializing neural network
         self.brain = neuralNetwork.neural_network_create(AMOUNT_HIDDEN_NEURON, AMOUNT_ENTRY_NEURON, AMOUNT_OUT_NEURON)
         for i in range(neuralNetwork.neural_network_get_weight_amount(self.brain)):
-            self.dna = self.random_dna()
+            self.dna.append(self.random_dna())
 
     def random_dna(self):
         return (random.randint(0, 20000) / 10.0) - 1000.0
@@ -106,7 +112,7 @@ class Character:
 
     def can_create_knife(self):
         return self.has_knife and self.has_log \
-               and self.has_rock
+            and self.has_rock
 
     def on_craft_knife_pressed(self, current_background):
         if self.can_create_knife():
@@ -118,3 +124,36 @@ class Character:
             else:
                 self.playerImg = pygame.image.load('RedCharacterWithKnife.png')
             current_background.screen.blit(self.playerImg, self.current_position)
+
+    def walk_left(self, current_background):
+        self.move((-64, 0), current_background)
+
+    def walk_right(self, current_background):
+        self.move((64, 0), current_background)
+
+    def walk_up(self, current_background):
+        self.move((0, -64), current_background)
+
+    def walk_down(self, current_background):
+        self.move((0, 64), current_background)
+
+    def walk_to_closest_enemy(self, current_background):
+        if self.closest_enemy is None:
+            return
+        if self.closest_enemy.current_position[0] < self.current_position[0]:
+            self.walk_left(current_background)
+        elif self.closest_enemy.current_position[0] > self.current_position[0]:
+            self.walk_right(current_background)
+        elif self.closest_enemy.current_position[1] < self.current_position[1]:
+            self.walk_up(current_background)
+        elif self.closest_enemy.current_position[1] > self.current_position[1]:
+            self.walk_down(current_background)
+
+    def die(self, game_mode):
+        img_to_override = game_mode.current_background.square_image_dict[self.current_position]
+        game_mode.current_background.screen.blit(img_to_override, self.current_position)
+        game_mode.remove_player(self)
+
+    def distance_to(self, character):
+        return math.sqrt((self.current_position[0] - character.current_position[0]) ** 2 + (
+                self.current_position[1] - character.current_position[1]) ** 2)
