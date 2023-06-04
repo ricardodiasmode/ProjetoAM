@@ -5,8 +5,8 @@ import pygame
 import neuralNetwork
 
 AMOUNT_ENTRY_NEURON = 8
-AMOUNT_HIDDEN_NEURON = [1, 2, 2, 2]
-AMOUNT_OUT_NEURON = 9
+AMOUNT_HIDDEN_NEURON = [8]
+AMOUNT_OUT_NEURON = 8
 
 
 class Character:

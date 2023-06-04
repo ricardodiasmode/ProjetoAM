@@ -48,7 +48,8 @@ class NeuralNetwork:
     # hidden_layers_array is an array of int. The nth position is the number of neurons in the nth layer
     def __init__(self, amount_of_entry_neurons, hidden_layers_array, amount_of_out_layer):
         self.entry_layer = Layer(amount_of_entry_neurons, 0)
-        self.hidden_layer = [Layer(hidden_layers_array[i], amount_of_entry_neurons) for i in range(len(hidden_layers_array))]
+        self.hidden_layer = [Layer(hidden_layers_array[i], amount_of_entry_neurons) for i in
+                             range(len(hidden_layers_array))]
         self.out_layer = Layer(amount_of_out_layer, hidden_layers_array[-1])
         self.amount_of_hidden_layers = len(hidden_layers_array)
 
@@ -119,16 +120,19 @@ def neural_network_calculate_weights(neural_network):
     for k in range(1, neural_network.amount_of_hidden_layers):
         for i in range(neural_network.hidden_layer[k].amount_neuron - BIAS):
             summation = 0
-            for j in range(neural_network.hidden_layer[k-1].amount_neuron):
-                summation += neural_network.hidden_layer[k-1].neurons[j].out_value * \
+            for j in range(neural_network.hidden_layer[k - 1].amount_neuron):
+                print("hidden_layer len: " + str(len(neural_network.hidden_layer)) + " / k: " + str(k))
+                print("neuron len: " + str(len(neural_network.hidden_layer[k].neurons)) + " / j: " + str(j))
+                print("weight len: " + str(len(neural_network.hidden_layer[k].neurons[i].weight)) + " / i: " + str(i))
+                summation += neural_network.hidden_layer[k - 1].neurons[j].out_value * \
                              neural_network.hidden_layer[k].neurons[i].weight[j]
             neural_network.hidden_layer[k].neurons[i].out_value = relu(summation)
 
     # Calculando saidas entre a camada de saida e a ultima camada escondida
     for i in range(neural_network.out_layer.amount_neuron):
         summation = 0
-        for j in range(neural_network.hidden_layer[k-1].amount_neuron):
-            summation += neural_network.hidden_layer[k-1].neurons[j].out_value * \
+        for j in range(neural_network.hidden_layer[k - 1].amount_neuron):
+            summation += neural_network.hidden_layer[k - 1].neurons[j].out_value * \
                          neural_network.out_layer.neurons[i].weight[j]
         neural_network.out_layer.neurons[i].out_value = relu(summation)
 
@@ -165,38 +169,3 @@ def neural_network_create(hidden_amount, entry_neuron_amount, out_neuron_amount)
         neural_network_initialize_neuron_weight(neural_network.out_layer.neurons[i])
 
     return neural_network
-
-
-# def neural_network_load(String):
-#     with open(String, "rb") as f:
-#         QtdEscondida, QtdNeuroEntrada, QtdNeuroEscondida, QtdNeuroSaida = struct.unpack("iiii", f.read(16))
-#
-#         Temp = RNA_Criarneural_networkNeural(QtdEscondida, QtdNeuroEntrada, QtdNeuroEscondida, QtdNeuroSaida)
-#
-#         for k in range(Temp.QuantidadeEscondidas):
-#             for i in range(Temp.hidden_layer[k].amount_neuron):
-#                 for j in range(Temp.hidden_layer[k].Neuronios[i].QuantidadeLigacoes):
-#                     Temp.hidden_layer[k].Neuronios[i].Peso[j] = struct.unpack("d", f.read(8))[0]
-#         for i in range(Temp.out_layer.amount_neuron):
-#             for j in range(Temp.out_layer.Neuronios[i].QuantidadeLigacoes):
-#                 Temp.out_layer.Neuronios[i].Peso[j] = struct.unpack("d", f.read(8))[0]
-#
-#         return Temp
-
-# def neural_network_save(Temp, String):
-#     with open(String, "wb") as f:
-#     f.write(struct.pack("i", Temp.QuantidadeEscondidas))
-#     f.write(struct.pack("i", Temp.CamadaEntrada.amount_neuron))
-#     f.write(struct.pack("i", Temp.hidden_layer[0].amount_neuron))
-#     f.write(struct.pack("i", Temp.out_layer.amount_neuron))
-#     for k in range(Temp.QuantidadeEscondidas):
-#         for i in range(Temp.hidden_layer[k].amount_neuron):
-#             for j in range(Temp.hidden_layer[k].Neuronios[i].QuantidadeLigacoes):
-#                 f.write(struct.pack("d", Temp.hidden_layer[k].Neuronios[i].Peso[j]))
-#
-#     for i in range(Temp.out_layer.amount_neuron):
-#         for j in range(Temp.out_layer.Neuronios[i].QuantidadeLigacoes):
-#             f.write(struct.pack("d", Temp.out_layer.Neuronios[i].Peso[j]))
-
-
-

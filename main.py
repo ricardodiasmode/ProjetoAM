@@ -46,11 +46,9 @@ def react_given_out_param(current_background, current_character_ref, out_params_
     elif out_params_ref[5]:
         current_character_ref.on_interact(current_background)
     elif out_params_ref[6]:
-        current_character_ref.on_interact(current_background)
+        current_character_ref.on_craft_tent_pressed(current_background)
     elif out_params_ref[7]:
-        current_character_ref.on_craft_tent_pressed()
-    elif out_params_ref[8]:
-        current_character_ref.on_craft_knife_pressed()
+        current_character_ref.on_craft_knife_pressed(current_background)
 
 
 # basic pygame setups
@@ -100,4 +98,8 @@ while not done:
     game_mode.update_closest_enemies()
 
     if game_mode.check_if_game_over():
+        print("Game over in turn: " + str(current_turn))
         game_mode.reset_game()
+        current_turn = 0
+
+    print("Turn: " + str(current_turn) + " passed.")
