@@ -1,12 +1,8 @@
 import math
 import random
-
+import utils
 import pygame
 import neuralNetwork
-
-AMOUNT_ENTRY_NEURON = 8
-AMOUNT_HIDDEN_NEURON = [8]
-AMOUNT_OUT_NEURON = 8
 
 
 class Character:
@@ -28,21 +24,20 @@ class Character:
         list_of_tuple[1] += 24  # image offset
         position = tuple(list_of_tuple)
         self.current_position = position
-        if not blue_team:
-            self.playerImg = pygame.image.load('RedCharacter.png')
         current_background.screen.blit(self.playerImg, position)
         self.current_game_mode = game_mode
         self.current_team_is_blue = blue_team
+        self.update_image()
 
         # initializing neural network
-        self.brain = neuralNetwork.neural_network_create(AMOUNT_HIDDEN_NEURON, AMOUNT_ENTRY_NEURON, AMOUNT_OUT_NEURON)
+        self.brain = neuralNetwork.neural_network_create()
+        self.dna = []
         for i in range(neuralNetwork.neural_network_get_weight_amount(self.brain)):
-            self.dna.append(self.random_dna())
+            self.dna.append((random.randint(0, 20000) / 10.0) - 1000.0)
 
-    def random_dna(self):
-        return (random.randint(0, 20000) / 10.0) - 1000.0
-
-    def move(self, position, current_background):
+    def move(self, position, current_background, game_mode):
+        if utils.any_location_equal(position, game_mode.get_all_characters_location(self)):
+            return
 
         if position[0] + self.current_position[0] < 0 or position[0] + self.current_position[
             0] >= current_background.display_width or position[1] + self.current_position[1] < 0 or position[1] + \
@@ -58,25 +53,51 @@ class Character:
         self.current_position = position
         current_background.screen.blit(self.playerImg, self.current_position)
 
-    def on_interact(self, current_background):
+    def update_image(self):
+        if self.has_rock and self.has_log:
+            if self.current_team_is_blue:
+                self.playerImg = pygame.image.load('BlueCharacterWithLogAndRock.png')
+            else:
+                self.playerImg = pygame.image.load('RedCharacterWithLogAndRock.png')
+        elif self.has_log:
+            if self.current_team_is_blue:
+                self.playerImg = pygame.image.load('BlueCharacterWithLog.png')
+            else:
+                self.playerImg = pygame.image.load('RedCharacterWithLog.png')
+        elif self.has_rock:
+            if self.current_team_is_blue:
+                self.playerImg = pygame.image.load('BlueCharacterWithRock.png')
+            else:
+                self.playerImg = pygame.image.load('RedCharacterWithRock.png')
+        else:
+            if self.current_team_is_blue:
+                self.playerImg = pygame.image.load('BlueCharacter.png')
+            else:
+                self.playerImg = pygame.image.load('RedCharacter.png')
 
+    def on_interact(self, current_background):
         if current_background.square_dict[self.current_position] == "LOG":
-            if self.has_log:
+            if self.has_log or self.has_knife:
+                print("wtf")
                 return
+            print("GOT LOG!")
             self.has_log = True
             current_background.screen.blit(current_background.grass1Img, self.current_position)
             current_background.screen.blit(self.playerImg, self.current_position)
             current_background.square_dict[self.current_position] = "GRASS"
             current_background.square_image_dict[self.current_position] = current_background.grass1Img
-
-        if current_background.square_dict[self.current_position] == "ROCK":
-            if self.has_rock:
+        elif current_background.square_dict[self.current_position] == "ROCK":
+            if self.has_rock or self.has_knife:
+                print("wtf")
                 return
+            print("GOT ROCK!")
             self.has_rock = True
             current_background.screen.blit(current_background.grass3Img, self.current_position)
             current_background.screen.blit(self.playerImg, self.current_position)
             current_background.square_dict[self.current_position] = "GRASS"
             current_background.square_image_dict[self.current_position] = current_background.grass3Img
+        self.update_image()
+
 
     def on_craft_tent_pressed(self, current_background):
         self.try_create_tent(current_background)
@@ -111,7 +132,7 @@ class Character:
         # TODO: Create a AI character
 
     def can_create_knife(self):
-        return self.has_knife and self.has_log \
+        return not self.has_knife and self.has_log \
             and self.has_rock
 
     def on_craft_knife_pressed(self, current_background):
@@ -152,7 +173,6 @@ class Character:
     def die(self, game_mode):
         img_to_override = game_mode.current_background.square_image_dict[self.current_position]
         game_mode.current_background.screen.blit(img_to_override, self.current_position)
-        game_mode.remove_player(self)
 
     def distance_to(self, character):
         return math.sqrt((self.current_position[0] - character.current_position[0]) ** 2 + (

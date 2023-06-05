@@ -5,13 +5,9 @@ import pygame
 import background
 import character
 
-AMOUNT_ENTRY_NEURON = character.AMOUNT_ENTRY_NEURON
-AMOUNT_HIDDEN_NEURON = character.AMOUNT_HIDDEN_NEURON
-AMOUNT_OUT_NEURON = character.AMOUNT_OUT_NEURON
-
 
 class GameMode:
-    number_of_characters_each_team = 1
+    number_of_characters_each_team = 5
     current_background = None
     current_players_blue_team = 0
     current_players_red_team = 0
@@ -25,18 +21,9 @@ class GameMode:
             return True
         return False
 
-    def save_neural_network(self):
-        # creating file
-        file = open("neural_network.txt", "w")
-        # writing DNA
-        for i in range(len(self.last_alive.dna)):
-            file.write(str(self.last_alive.dna[i]) + "\n")
-        # close file
-        file.close()
-
     def random_mutations(self):
         if self.generation == 0:
-            self.rangeRandom = self.characters[0].dna[0]
+            self.rangeRandom = len(self.characters[0].dna)
 
         # Order characters by fitness using bubble sort. todo: optimize this to quick sort or merge sort?
         for i in range(len(self.characters)):
@@ -58,16 +45,16 @@ class GameMode:
 
             for k in range(mutations):
                 tipo = random.randint(0, 2)
-                indice = random.randint(0, len(self.characters[j].DNA) - 1)
+                indice = random.randint(0, len(self.characters[j].dna) - 1)
 
                 if tipo == 0:
-                    self.characters[j].DNA[indice] = random.uniform(-1000.0, 1000.0)  # Valor Aleatório
+                    self.characters[j].dna[indice] = random.uniform(-1000.0, 1000.0)  # Valor Aleatório
                 elif tipo == 1:
                     number = (random.randint(0, 10001) / 10000.0) + 0.5
-                    self.characters[j].DNA[indice] = self.characters[j].DNA[indice] * number  # Multiplicação aleatória
+                    self.characters[j].dna[indice] = self.characters[j].dna[indice] * number  # Multiplicação aleatória
                 elif tipo == 2:
                     number = random.uniform(-1000.0, 1000.0) / 100.0
-                    self.characters[j].DNA[indice] = self.characters[j].DNA[indice] + number  # Soma aleatória
+                    self.characters[j].dna[indice] = self.characters[j].dna[indice] + number  # Soma aleatória
 
         self.generation += 1
 
@@ -80,7 +67,6 @@ class GameMode:
         self.current_players_red_team = 0
         self.characters = []
         self.last_alive = None
-        self.generation = 0
         self.rangeRandom = 0
 
         self.current_background = background.Background()
@@ -102,9 +88,8 @@ class GameMode:
             self.current_players_red_team += 1
 
     def reset_game(self):
-        self.save_neural_network()
-        self.random_mutations()
         self.init_new_game()
+        self.random_mutations()
 
     def update_closest_enemies(self):  # todo: optimize this to be better than O(n^2)
         for current_character in self.characters:
@@ -118,6 +103,13 @@ class GameMode:
                                 closest_character):
                             closest_character = other_character
             current_character.closest_enemy = closest_character
+
+    def get_all_characters_location(self, character_to_ignore=None):
+        locations = []
+        for current_character in self.characters:
+            if current_character != character_to_ignore:
+                locations.append(current_character.current_position)
+        return locations
 
     def get_best_character_alive(self):
         for current_character in self.characters:
@@ -133,7 +125,6 @@ class GameMode:
         return self.characters[0]
 
     def remove_player(self, character_to_remove):
-
         if character_to_remove.current_team_is_blue:
             self.current_players_blue_team -= 1
         else:
@@ -145,23 +136,28 @@ class GameMode:
             self.last_alive = self.characters[0]
 
     def write_text(self, message, x, y):
-        font = pygame.font.SysFont("Arial", 24)  # Exemplo de fonte e tamanho
-        text_color = (255, 255, 255)  # Exemplo de cor (branco)
+        font = pygame.font.SysFont("Arial", 18)
+        text_color = (255, 255, 255)
         text = font.render(message, True, text_color)
         self.current_background.screen.blit(text, (x, y))
 
-    def draw_neural_network(self, X, Y, width, height):
-        entry_neuronX = [0] * AMOUNT_ENTRY_NEURON
-        entry_neuronY = [0] * AMOUNT_ENTRY_NEURON
-        hidden_neuronX = [[0] * AMOUNT_HIDDEN_NEURON for _ in range(len(AMOUNT_HIDDEN_NEURON))]
-        hidden_neuronY = [[0] * AMOUNT_HIDDEN_NEURON for _ in range(len(AMOUNT_HIDDEN_NEURON))]
-        out_neuronX = [0] * AMOUNT_OUT_NEURON
-        out_neuronY = [0] * AMOUNT_OUT_NEURON
+    def draw_simple_line(self, x, y, x2, y2, color):
+        pygame.draw.line(self.current_background.screen, color, (x, y), (x2, y2))
 
-        input = [0] * AMOUNT_ENTRY_NEURON
-        x_origin = X + 325
-        y_origin = Y + height
-        neuron_size = 20
+    def draw_neuron(self, x, y, radius, color):
+        pygame.draw.circle(self.current_background.screen, color, (x, y), radius)
+
+    def draw_neural_network(self, x_location, y_location, width, height):
+        entry_neuronX = []
+        entry_neuronY = []
+        hidden_neuronX = [[]]
+        hidden_neuronY = [[]]
+        out_neuronX = []
+        out_neuronY = []
+        mlp_input = []
+        x_origin = x_location + 325
+        y_origin = y_location + height
+        neuron_size = 8
 
         best_character = self.get_best_character_alive()
 
@@ -170,36 +166,35 @@ class GameMode:
         amount_neuron_hidden = best_character.brain.hidden_layer[0].amount_neuron
         amount_neuron_out = best_character.brain.out_layer.amount_neuron
 
-        for i in range(AMOUNT_ENTRY_NEURON):
-            input[i] = best_character.brain.entry_layer.neurons[i].out_value
+        for i in range(best_character.brain.entry_layer.amount_neuron):
+            mlp_input.append(best_character.brain.entry_layer.neurons[i].out_value)
 
-        height_scale = height / (amount_neuron_hidden - 1)
+        height_scale = 20 + height / (amount_neuron_hidden - 1)
         width_scale = (width - 475) / (amount_hidden + 1)
 
         temp = y_origin - (height_scale * (amount_neuron_hidden - 2)) / 2.0 + (
                 height_scale * (amount_neuron_out - 1)) / 2.0
 
-        self.write_text("Cima", X + width - 130, temp - 0 * height_scale - 90)
+        self.write_text("Cima", x_location + width - 130, temp - 0 * height_scale - 15)
 
-        self.write_text("Baixo", X + width - 130, temp - 1 * height_scale - 90)
+        self.write_text("Baixo", x_location + width - 130, temp - 1 * height_scale - 15)
 
-        self.write_text("Esquerda", X + width - 130, temp - 2 * height_scale - 90)
+        self.write_text("Esquerda", x_location + width - 130, temp - 2 * height_scale - 15)
 
-        self.write_text("Direita", X + width - 130, temp - 3 * height_scale - 90)
+        self.write_text("Direita", x_location + width - 130, temp - 3 * height_scale - 15)
 
-        self.write_text("Atacar", X + width - 130, temp - 4 * height_scale - 90)
+        self.write_text("Atacar", x_location + width - 130, temp - 4 * height_scale - 15)
 
-        self.write_text("Pegar", X + width - 130, temp - 5 * height_scale - 90)
+        self.write_text("Interagir", x_location + width - 130, temp - 5 * height_scale - 15)
 
-        self.write_text("Craft Tenda", X + width - 130, temp - 6 * height_scale - 90)
+        self.write_text("Craft Tenda", x_location + width - 130, temp - 6 * height_scale - 15)
 
-        self.write_text("Craft Faca", X + width - 130, temp - 7 * height_scale - 90)
+        self.write_text("Craft Faca", x_location + width - 130, temp - 7 * height_scale - 15)
 
         # Drawing connections
-        
         for i in range(amount_entry_neuron - 1):
-            entry_neuronX[i] = x_origin
-            entry_neuronY[i] = y_origin - i * height_scale
+            entry_neuronX.append(x_origin)
+            entry_neuronY.append(y_origin - i * height_scale)
 
         for i in range(amount_hidden):
             if i == 0:
@@ -214,114 +209,90 @@ class GameMode:
                 y_previous = hidden_neuronY[i - 1]
 
             for j in range(amount_neuron_hidden - 1):
-                hidden_neuronX[i][j] = x_origin + (i + 1) * width_scale
-                hidden_neuronY[i][j] = y_origin - j * height_scale - 85
+                hidden_neuronX[i].append(x_origin + (i + 1) * width_scale)
+                hidden_neuronY[i].append(y_origin - j * height_scale)
 
                 for k in range(amount_previous_layer - 1):
-                    weight = best_character.brain.hidden_layer[i].Neuronios[j].Peso[k]
-                    out_value = previous_layer.Neuronios[k].Saida
+                    weight = best_character.brain.hidden_layer[i].neurons[j].weight[k]
+                    out_value = previous_layer.neurons[k].out_value
                     if weight * out_value > 0:
-                        DesenharLinhaSimples(x_previous[k],
-                                             y_previous[k],
-                                             hidden_neuronX[i][j],
-                                             hidden_neuronY[i][j], VERMELHO)
+                        self.draw_simple_line(x_previous[k],
+                                              y_previous[k],
+                                              hidden_neuronX[i][j],
+                                              hidden_neuronY[i][j], (255, 0, 0))
 
                     else:
-                        DesenharLinhaSimples(x_previous[k],
-                                             y_previous[k],
-                                             hidden_neuronX[i][j],
-                                             hidden_neuronY[i][j], CINZA)
+                        self.draw_simple_line(x_previous[k],
+                                              y_previous[k],
+                                              hidden_neuronX[i][j],
+                                              hidden_neuronY[i][j], (128, 128, 128))
 
         for i in range(amount_neuron_out):
-            UltimaCamada = melhorCarro.Cerebro.QuantidadeEscondidas - 1
+            last_layer = best_character.brain.amount_of_hidden_layers - 1
             temp = y_origin - (height_scale * (amount_neuron_hidden - 2)) / 2.0 + (
                     height_scale * (amount_neuron_out - 1)) / 2.0
 
-            out_neuronX[i] = x_origin + (amount_hidden + 1) * width_scale
-            out_neuronY[i] = temp - i * height_scale - 85
+            out_neuronX.append(x_origin + (amount_hidden + 1) * width_scale)
+            out_neuronY.append(temp - i * height_scale)
 
             for k in range(amount_neuron_hidden - 1):
-                Peso = melhorCarro.Cerebro.CamadaSaida.Neuronios[i].Peso[k]
-                Saida = best_character.brain.hidden_layer[UltimaCamada].Neuronios[k].Saida
+                weight = best_character.brain.out_layer.neurons[i].weight[k]
+                output = best_character.brain.hidden_layer[last_layer].neurons[k].out_value
 
-                if Peso * Saida > 0:
-                    DesenharLinhaSimples(hidden_neuronX[UltimaCamada][k],
-                                         hidden_neuronY[UltimaCamada][k],
-                                         out_neuronX[i],
-                                         out_neuronY[i], VERMELHO)
+                if weight * output > 0:
+                    self.draw_simple_line(hidden_neuronX[last_layer][k],
+                                          hidden_neuronY[last_layer][k],
+                                          out_neuronX[i],
+                                          out_neuronY[i], (255, 0, 0))
 
                 else:
-                    DesenharLinhaSimples(hidden_neuronX[UltimaCamada][k],
-                                         hidden_neuronY[UltimaCamada][k],
-                                         out_neuronX[i],
-                                         out_neuronY[i], CINZA)
+                    self.draw_simple_line(hidden_neuronX[last_layer][k],
+                                          hidden_neuronY[last_layer][k],
+                                          out_neuronX[i],
+                                          out_neuronY[i], (128, 128, 128))
 
-        # Desenhar Neuronios
-
+        # Drawing neurons
         for i in range(amount_entry_neuron - 1):
-            if i == AMOUNT_ENTRY_NEURON - 1:
-                if input[i] > 15:
-                    Opacidade = 1
-                else:
-                    Opacidade = abs(input[i]) / 15.0
-                cor = calcularCor(Opacidade, BRANCO)
-            else:
-                if input[i] > 200.0:
-                    Opacidade = 0
-                else:
-                    Opacidade = abs(200.0 - input[i]) / 200.0
-                cor = calcularCor(Opacidade, BRANCO)
+            self.draw_neuron(entry_neuronX[i],
+                             entry_neuronY[i],
+                             neuron_size * 1.3, (0, 0, 0))
 
-            DefinirColoracao(SpriteNeuronAtivado, cor)
-            DefinirOpacidade(SpriteLuzAmarelo, Opacidade * 255)
-
-            DesenharSprite(spriteContornoNeuronio,
-                           entry_neuronX[i],
-                           entry_neuronY[i],
-                           neuron_size * 1.1,
-                           neuron_size * 1.1, 0, 0)
-
-            DesenharSprite(SpriteNeuronAtivado,
-                           entry_neuronX[i],
-                           entry_neuronY[i],
-                           neuron_size,
-                           neuron_size, 0, 0)
-
-            DefinirColoracao(SpriteNeuronAtivado, BRANCO)
+            self.draw_neuron(entry_neuronX[i],
+                             entry_neuronY[i],
+                             neuron_size, (255, 0, 0))
 
         for i in range(amount_hidden):
             for j in range(amount_neuron_hidden - 1):
-                Sprite = SpriteNeuronDesativado
-                SaidaNeuronio = best_character.brain.hidden_layer[i].Neuronios[j].Saida
-                if SaidaNeuronio > 0:
-                    Sprite = SpriteNeuronAtivado
+                color = (0, 0, 0)
+                neuron_output = best_character.brain.hidden_layer[i].neurons[j].out_value
+                if neuron_output > 0:
+                    color = (255, 0, 0)
 
-                DesenharSprite(spriteContornoNeuronio,
-                               hidden_neuronX[i][j],
-                               hidden_neuronY[i][j],
-                               neuron_size * 1.1,
-                               neuron_size * 1.1, 0, 0)
+                self.draw_neuron(hidden_neuronX[i][j],
+                                 hidden_neuronY[i][j],
+                                 neuron_size * 1.3, (0, 0, 0))
 
-                DesenharSprite(Sprite,
-                               hidden_neuronX[i][j],
-                               hidden_neuronY[i][j],
-                               neuron_size,
-                               neuron_size, 0, 0)
+                self.draw_neuron(hidden_neuronX[i][j],
+                                 hidden_neuronY[i][j],
+                                 neuron_size, color)
+
+        best_neuron_index = 0
+        for i in range(amount_neuron_out):
+            if best_character.brain.out_layer.neurons[i].out_value > \
+                    best_character.brain.out_layer.neurons[best_neuron_index].out_value:
+                best_neuron_index = i
 
         for i in range(amount_neuron_out):
-            Sprite = SpriteNeuronDesativado
-            SaidaNeuronio = melhorCarro.Cerebro.CamadaSaida.Neuronios[i].Saida
-            if SaidaNeuronio > 0.5:
-                Sprite = SpriteNeuronAtivado
+            color = (0, 0, 0)
+            if i == best_neuron_index:
+                color = (255, 0, 0)
 
-            DesenharSprite(spriteContornoNeuronio,
-                           out_neuronX[i],
-                           out_neuronY[i],
-                           neuron_size * 1.1,
-                           neuron_size * 1.1, 0, 0)
+            self.draw_neuron(
+                out_neuronX[i],
+                out_neuronY[i],
+                neuron_size * 1.3, (0, 0, 0))
 
-            DesenharSprite(Sprite,
-                           out_neuronX[i],
-                           out_neuronY[i],
-                           neuron_size,
-                           neuron_size, 0, 0)
+            self.draw_neuron(
+                out_neuronX[i],
+                out_neuronY[i],
+                neuron_size, color)

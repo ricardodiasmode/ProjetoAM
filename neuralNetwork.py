@@ -45,13 +45,18 @@ class Layer:
 
 
 class NeuralNetwork:
+    BIAS = 1
+    AMOUNT_ENTRY_NEURON = 8 + BIAS
+    AMOUNT_HIDDEN_NEURON = [8 + BIAS]
+    AMOUNT_OUT_NEURON = 8
+
     # hidden_layers_array is an array of int. The nth position is the number of neurons in the nth layer
-    def __init__(self, amount_of_entry_neurons, hidden_layers_array, amount_of_out_layer):
-        self.entry_layer = Layer(amount_of_entry_neurons, 0)
-        self.hidden_layer = [Layer(hidden_layers_array[i], amount_of_entry_neurons) for i in
-                             range(len(hidden_layers_array))]
-        self.out_layer = Layer(amount_of_out_layer, hidden_layers_array[-1])
-        self.amount_of_hidden_layers = len(hidden_layers_array)
+    def __init__(self):
+        self.entry_layer = Layer(self.AMOUNT_ENTRY_NEURON, 0)
+        self.hidden_layer = [Layer(self.AMOUNT_HIDDEN_NEURON[i], self.AMOUNT_ENTRY_NEURON) for i in
+                             range(len(self.AMOUNT_HIDDEN_NEURON))]
+        self.out_layer = Layer(self.AMOUNT_OUT_NEURON, self.AMOUNT_HIDDEN_NEURON[-1])
+        self.amount_of_hidden_layers = len(self.AMOUNT_HIDDEN_NEURON)
 
 
 def RNA_CopiarVetorParaCamadas(neural_network, Vetor):
@@ -147,11 +152,12 @@ def neural_network_initialize_neuron_weight(neuron):
 
 
 # hidden_amount is an array of integers. The nth position is the number of neurons in the nth layer
-def neural_network_create(hidden_amount, entry_neuron_amount, out_neuron_amount):
-    entry_neuron_amount += BIAS
-    for i in range(len(hidden_amount)):
-        hidden_amount[i] += BIAS
-    neural_network = NeuralNetwork(entry_neuron_amount, hidden_amount, out_neuron_amount)
+def neural_network_create():
+    entry_neuron_amount = NeuralNetwork.AMOUNT_ENTRY_NEURON
+    out_neuron_amount = NeuralNetwork.AMOUNT_OUT_NEURON
+    hidden_amount = NeuralNetwork.AMOUNT_HIDDEN_NEURON
+
+    neural_network = NeuralNetwork()
 
     for i in range(entry_neuron_amount):
         neuron = Neuron(hidden_amount[0])

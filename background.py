@@ -14,7 +14,6 @@ class Background:
 
     rocks_location = []
     logs_location = []
-    characters_location = []
 
     grass0Img = pygame.image.load('Grass0.png')
     grass1Img = pygame.image.load('Grass1.png')
