@@ -78,9 +78,8 @@ class Character:
     def on_interact(self, current_background):
         if current_background.square_dict[self.current_position] == "LOG":
             if self.has_log or self.has_knife:
-                print("wtf")
                 return
-            print("GOT LOG!")
+            print("GOT LOG, DNA: " + str(self.dna))
             self.has_log = True
             current_background.screen.blit(current_background.grass1Img, self.current_position)
             current_background.screen.blit(self.playerImg, self.current_position)
@@ -88,9 +87,8 @@ class Character:
             current_background.square_image_dict[self.current_position] = current_background.grass1Img
         elif current_background.square_dict[self.current_position] == "ROCK":
             if self.has_rock or self.has_knife:
-                print("wtf")
                 return
-            print("GOT ROCK!")
+            print("GOT ROCK! dna: " + str(self.dna))
             self.has_rock = True
             current_background.screen.blit(current_background.grass3Img, self.current_position)
             current_background.screen.blit(self.playerImg, self.current_position)

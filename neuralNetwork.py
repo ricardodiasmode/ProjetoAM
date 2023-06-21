@@ -59,35 +59,6 @@ class NeuralNetwork:
         self.amount_of_hidden_layers = len(self.AMOUNT_HIDDEN_NEURON)
 
 
-def RNA_CopiarVetorParaCamadas(neural_network, Vetor):
-    j = 0
-    for i in range(neural_network.QuantidadeEscondidas):
-        for k in range(neural_network.hidden_layer[i].amount_neuron):
-            for l in range(neural_network.hidden_layer[i].Neuronios[k].QuantidadeLigacoes):
-                neural_network.hidden_layer[i].Neuronios[k].Peso[l] = Vetor[j]
-                j += 1
-
-    for k in range(neural_network.out_layer.amount_neuron):
-        for l in range(neural_network.out_layer.Neuronios[k].QuantidadeLigacoes):
-            neural_network.out_layer.Neuronios[k].Peso[l] = Vetor[j]
-            j += 1
-
-
-def RNA_CopiarCamadasParaVetor(neural_network, Vetor):
-    j = 0
-
-    for i in range(neural_network.QuantidadeEscondidas):
-        for k in range(neural_network.hidden_layer[i].amount_neuron):
-            for l in range(neural_network.hidden_layer[i].Neuronios[k].QuantidadeLigacoes):
-                Vetor[j] = neural_network.hidden_layer[i].Neuronios[k].Peso[l]
-                j += 1
-
-    for k in range(neural_network.out_layer.amount_neuron):
-        for l in range(neural_network.out_layer.Neuronios[k].QuantidadeLigacoes):
-            Vetor[j] = neural_network.out_layer.Neuronios[k].Peso[l]
-            j += 1
-
-
 def neural_network_copy_to_entry_layer(neural_network, entry_vector):
     for i in range(neural_network.entry_layer.amount_neuron - BIAS):
         neural_network.entry_layer.neurons[i].out_value = entry_vector[i]
@@ -126,9 +97,6 @@ def neural_network_calculate_weights(neural_network):
         for i in range(neural_network.hidden_layer[k].amount_neuron - BIAS):
             summation = 0
             for j in range(neural_network.hidden_layer[k - 1].amount_neuron):
-                print("hidden_layer len: " + str(len(neural_network.hidden_layer)) + " / k: " + str(k))
-                print("neuron len: " + str(len(neural_network.hidden_layer[k].neurons)) + " / j: " + str(j))
-                print("weight len: " + str(len(neural_network.hidden_layer[k].neurons[i].weight)) + " / i: " + str(i))
                 summation += neural_network.hidden_layer[k - 1].neurons[j].out_value * \
                              neural_network.hidden_layer[k].neurons[i].weight[j]
             neural_network.hidden_layer[k].neurons[i].out_value = relu(summation)

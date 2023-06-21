@@ -1,3 +1,4 @@
+import math
 import random
 
 import pygame
@@ -12,7 +13,7 @@ class GameMode:
     current_players_blue_team = 0
     current_players_red_team = 0
     characters = []
-    last_alive = None
+    best_alive_dna = None
     generation = 0
     rangeRandom = 0
 
@@ -33,14 +34,18 @@ class GameMode:
                     self.characters[j] = self.characters[j + 1]
                     self.characters[j + 1] = temp
 
-        # Cloning first 5 characters
-        step = 5
-        for i in range(step):
-            for j in range(i + step, len(self.characters), step):
-                self.characters[j].dna = self.characters[i].dna
+        # Cloning the best two
+        if self.best_alive_dna is None:
+            self.best_alive_dna = self.characters[0].dna
+
+        # Printing the best two dna
+        print("Best DNA: " + str(self.best_alive_dna))
+
+        for i in range(len(self.characters)):
+            self.characters[i].dna = self.best_alive_dna
 
         # Mutating
-        for j in range(step, len(self.characters)):
+        for j in range(math.ceil(len(self.characters)/4), math.floor(len(self.characters)/4+len(self.characters)/4)):
             mutations = random.randint(1, self.rangeRandom + 1)
 
             for k in range(mutations):
@@ -66,7 +71,7 @@ class GameMode:
         self.current_players_blue_team = 0
         self.current_players_red_team = 0
         self.characters = []
-        self.last_alive = None
+        self.best_alive_dna = None
         self.rangeRandom = 0
 
         self.current_background = background.Background()
@@ -87,7 +92,27 @@ class GameMode:
                                     self.current_background, self, False))
             self.current_players_red_team += 1
 
+    def get_best_character_alive(self):
+        for current_character in self.characters:
+            # Check if any character has knife
+            if current_character.has_knife:
+                return current_character
+            # Check if any character has log and rock
+            if current_character.has_log and current_character.has_rock:
+                return current_character
+            # Check if any character has log
+            if current_character.has_log:
+                return current_character
+            # Check if any character has rock
+            if current_character.has_rock:
+                return current_character
+        if len(self.characters) > 0:
+            return self.characters[0]
+        return None
+
     def reset_game(self):
+        if self.get_best_character_alive() is not None:
+            self.best_alive_dna = self.get_best_character_alive().dna
         self.init_new_game()
         self.random_mutations()
 
@@ -111,19 +136,6 @@ class GameMode:
                 locations.append(current_character.current_position)
         return locations
 
-    def get_best_character_alive(self):
-        for current_character in self.characters:
-            # Check if any character has knife
-            if current_character.has_knife:
-                return current_character
-            # Check if any character has log and rock
-            if current_character.has_log and current_character.has_rock:
-                return current_character
-            # Check if any character has log or rock
-            if current_character.has_log or current_character.has_rock:
-                return current_character
-        return self.characters[0]
-
     def remove_player(self, character_to_remove):
         if character_to_remove.current_team_is_blue:
             self.current_players_blue_team -= 1
@@ -131,9 +143,6 @@ class GameMode:
             self.current_players_red_team -= 1
         self.characters.remove(character_to_remove)
         self.update_closest_enemies()
-
-        if len(self.characters) == 1:
-            self.last_alive = self.characters[0]
 
     def write_text(self, message, x, y):
         font = pygame.font.SysFont("Arial", 18)

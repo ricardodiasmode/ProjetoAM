@@ -6,10 +6,12 @@ import utils
 
 
 def get_entry_params(current_character_ref, current_background_ref):
-    has_rock_below = utils.any_location_equal(current_character_ref.current_position, current_background_ref.rocks_location)
-    has_log_below = utils.any_location_equal(current_character_ref.current_position, current_background_ref.logs_location)
+    has_rock_below = utils.any_location_equal(current_character_ref.current_position,
+                                              current_background_ref.rocks_location)
+    has_log_below = utils.any_location_equal(current_character_ref.current_position,
+                                             current_background_ref.logs_location)
     closest_enemy_location = utils.get_closest_location(current_character_ref.current_position,
-                                                  game_mode.get_all_characters_location(current_character_ref))
+                                                        game_mode.get_all_characters_location(current_character_ref))
     entry_params_to_return = [
         current_character_ref.has_knife,  # first param: has knife
         current_character_ref.has_log,  # second param: has log
@@ -24,15 +26,15 @@ def get_entry_params(current_character_ref, current_background_ref):
     return entry_params_to_return
 
 
-def react_given_out_param(current_background, current_character_ref, out_params_ref, game_mode):
+def react_given_out_param(current_background, current_character_ref, out_params_ref, in_game_mode):
     if out_params_ref[0]:
-        current_character_ref.move((0, -64), current_background, game_mode)
+        current_character_ref.move((0, -64), current_background, in_game_mode)
     elif out_params_ref[1]:
-        current_character_ref.move((0, 64), current_background, game_mode)
+        current_character_ref.move((0, 64), current_background, in_game_mode)
     elif out_params_ref[2]:
-        current_character_ref.move((-64, 0), current_background, game_mode)
+        current_character_ref.move((-64, 0), current_background, in_game_mode)
     elif out_params_ref[3]:
-        current_character_ref.move((64, 0), current_background, game_mode)
+        current_character_ref.move((64, 0), current_background, in_game_mode)
     elif out_params_ref[4]:
         if current_character_ref.has_knife:
             current_character_ref.attack()
@@ -75,21 +77,18 @@ while not done:
     # we need to see what is happening
     time.sleep(0.001)
 
-    # die after 10 turns if character has no log or stone
-    if current_turn == 10:
+    # die after 20 turns if character has no log or stone
+    if current_turn == 5:
         players_to_remove = []
         for current_character in game_mode.characters:
             if not current_character.has_log and not current_character.has_rock:
                 current_character.die(game_mode)
                 players_to_remove.append(current_character)
-        print(f'removing {len(players_to_remove)}')
         for current_player in players_to_remove:
             game_mode.remove_player(current_player)
-        if len(game_mode.characters) > 0:
-            time.sleep(10)
 
-    # die after 20 turns if character has no knife
-    if current_turn == 20:
+    # die after 30 turns if character has no knife
+    if current_turn == 15:
         players_to_remove = []
         for current_character in game_mode.characters:
             if not current_character.has_knife:
@@ -98,7 +97,7 @@ while not done:
         for current_player in players_to_remove:
             game_mode.remove_player(current_player)
 
-    # die after 30 turns if character has knife and didn't kill anyone
+    # die after 40 turns if character has knife and didn't kill anyone
     if current_turn == 30:
         players_to_remove = []
         for current_character in game_mode.characters:
@@ -113,8 +112,6 @@ while not done:
     game_mode.update_closest_enemies()
 
     if game_mode.check_if_game_over():
-        # print("Game over in turn: " + str(current_turn))
+        print("Game over in turn: " + str(current_turn))
         game_mode.reset_game()
         current_turn = 0
-
-    # print("Turn: " + str(current_turn) + " passed.")
