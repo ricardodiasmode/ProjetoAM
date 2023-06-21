@@ -196,9 +196,9 @@ class GameMode:
 
         self.write_text("Interagir", x_location + width - 130, temp - 5 * height_scale - 15)
 
-        self.write_text("Craft Tenda", x_location + width - 130, temp - 6 * height_scale - 15)
+        self.write_text("Craft Faca", x_location + width - 130, temp - 6 * height_scale - 15)
 
-        self.write_text("Craft Faca", x_location + width - 130, temp - 7 * height_scale - 15)
+        # self.write_text("Craft Tenda", x_location + width - 130, temp - 7 * height_scale - 15)
 
         # Drawing connections
         for i in range(amount_entry_neuron - 1):

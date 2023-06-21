@@ -10,17 +10,17 @@ def get_entry_params(current_character_ref, current_background_ref):
                                               current_background_ref.rocks_location)
     has_log_below = utils.any_location_equal(current_character_ref.current_position,
                                              current_background_ref.logs_location)
-    closest_enemy_location = utils.get_closest_location(current_character_ref.current_position,
-                                                        game_mode.get_all_characters_location(current_character_ref))
+    # closest_enemy_location = utils.get_closest_location(current_character_ref.current_position,
+    #                                                     game_mode.get_all_characters_location(current_character_ref))
     entry_params_to_return = [
         current_character_ref.has_knife,  # first param: has knife
         current_character_ref.has_log,  # second param: has log
         current_character_ref.has_rock,  # third param: has rock
-        current_character_ref.can_create_tent(),  # fourth param: can create tent
-        current_character_ref.can_create_knife(),  # fifth param: can create knife
-        has_rock_below,  # sixth param: has rock below
-        has_log_below,  # seventh param: has log below
-        closest_enemy_location,  # eighth param: closest enemy
+        current_character_ref.can_create_knife(),  # fourth param: can create knife
+        has_rock_below,  # fifth param: has rock below
+        has_log_below,  # sixth param: has log below
+        # current_character_ref.can_create_tent(),  # seventh param: can create tent
+        # closest_enemy_location,  # eighth param: closest enemy
     ]
 
     return entry_params_to_return
@@ -41,9 +41,9 @@ def react_given_out_param(current_background, current_character_ref, out_params_
     elif out_params_ref[5]:
         current_character_ref.on_interact(current_background)
     elif out_params_ref[6]:
-        current_character_ref.on_craft_tent_pressed(current_background)
-    elif out_params_ref[7]:
         current_character_ref.on_craft_knife_pressed(current_background)
+    # elif out_params_ref[7]:
+    #     current_character_ref.on_craft_tent_pressed(current_background)
 
 
 # basic pygame setups
@@ -77,7 +77,7 @@ while not done:
     # we need to see what is happening
     time.sleep(0.001)
 
-    # die after 20 turns if character has no log or stone
+    # die after 5 turns if character has no log or stone
     if current_turn == 5:
         players_to_remove = []
         for current_character in game_mode.characters:
@@ -87,7 +87,7 @@ while not done:
         for current_player in players_to_remove:
             game_mode.remove_player(current_player)
 
-    # die after 30 turns if character has no knife
+    # die after 15 turns if character has no knife
     if current_turn == 15:
         players_to_remove = []
         for current_character in game_mode.characters:
@@ -97,7 +97,7 @@ while not done:
         for current_player in players_to_remove:
             game_mode.remove_player(current_player)
 
-    # die after 40 turns if character has knife and didn't kill anyone
+    # die after 30 turns if character has knife and didn't kill anyone
     if current_turn == 30:
         players_to_remove = []
         for current_character in game_mode.characters:

@@ -46,9 +46,9 @@ class Layer:
 
 class NeuralNetwork:
     BIAS = 1
-    AMOUNT_ENTRY_NEURON = 8 + BIAS
-    AMOUNT_HIDDEN_NEURON = [8 + BIAS]
-    AMOUNT_OUT_NEURON = 8
+    AMOUNT_ENTRY_NEURON = 6 + BIAS
+    AMOUNT_HIDDEN_NEURON = [7 + BIAS]
+    AMOUNT_OUT_NEURON = 7
 
     # hidden_layers_array is an array of int. The nth position is the number of neurons in the nth layer
     def __init__(self):
@@ -108,6 +108,18 @@ def neural_network_calculate_weights(neural_network):
             summation += neural_network.hidden_layer[k - 1].neurons[j].out_value * \
                          neural_network.out_layer.neurons[i].weight[j]
         neural_network.out_layer.neurons[i].out_value = relu(summation)
+
+    bigger_out_value = 0
+    bigger_out_value_index = 0
+    for i in range(neural_network.out_layer.amount_neuron):
+        if neural_network.out_layer.neurons[i].out_value > bigger_out_value:
+            bigger_out_value = neural_network.out_layer.neurons[i].out_value
+            bigger_out_value_index = i
+    for i in range(neural_network.out_layer.amount_neuron):
+        if i == bigger_out_value_index:
+            neural_network.out_layer.neurons[i].out_value = 1
+        else:
+            neural_network.out_layer.neurons[i].out_value = 0
 
 
 def neural_network_initialize_neuron_weight(neuron):
