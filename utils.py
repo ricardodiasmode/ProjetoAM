@@ -16,8 +16,6 @@ def get_closest_location(location_to_compare, locations_array):
 
 def any_location_equal(location_to_compare, locations_array):
     for i in range(len(locations_array)):
-        x_equal = location_to_compare[0] == locations_array[i][0]
-        y_equal = location_to_compare[1] == locations_array[i][1]
-        if x_equal and y_equal:
+        if location_to_compare == locations_array[i]:
             return True
     return False

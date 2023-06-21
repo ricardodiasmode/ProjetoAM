@@ -8,7 +8,7 @@ import character
 
 
 class GameMode:
-    number_of_characters_each_team = 5
+    number_of_characters_each_team = 1
     current_background = None
     current_players_blue_team = 0
     current_players_red_team = 0
@@ -26,20 +26,9 @@ class GameMode:
         if self.generation == 0:
             self.rangeRandom = len(self.characters[0].dna)
 
-        # Order characters by fitness using bubble sort. todo: optimize this to quick sort or merge sort?
-        for i in range(len(self.characters)):
-            for j in range(len(self.characters) - 1):
-                if self.characters[j].fitness < self.characters[j + 1].fitness:
-                    temp = self.characters[j]
-                    self.characters[j] = self.characters[j + 1]
-                    self.characters[j + 1] = temp
-
         # Cloning the best two
         if self.best_alive_dna is None:
             self.best_alive_dna = self.characters[0].dna
-
-        # Printing the best two dna
-        print("Best DNA: " + str(self.best_alive_dna))
 
         for i in range(len(self.characters)):
             self.characters[i].dna = self.best_alive_dna
@@ -68,6 +57,7 @@ class GameMode:
             self.rangeRandom = 15
 
     def init_new_game(self):
+        print("Current generation: " + str(self.generation))
         self.current_players_blue_team = 0
         self.current_players_red_team = 0
         self.characters = []
@@ -184,19 +174,19 @@ class GameMode:
         temp = y_origin - (height_scale * (amount_neuron_hidden - 2)) / 2.0 + (
                 height_scale * (amount_neuron_out - 1)) / 2.0
 
-        self.write_text("Cima", x_location + width - 130, temp - 0 * height_scale - 15)
+        self.write_text("Andar", x_location + width - 130, temp - 0 * height_scale - 15)
 
-        self.write_text("Baixo", x_location + width - 130, temp - 1 * height_scale - 15)
+        # self.write_text("Baixo", x_location + width - 130, temp - 1 * height_scale - 15)
+        #
+        # self.write_text("Esquerda", x_location + width - 130, temp - 2 * height_scale - 15)
+        #
+        # self.write_text("Direita", x_location + width - 130, temp - 3 * height_scale - 15)
 
-        self.write_text("Esquerda", x_location + width - 130, temp - 2 * height_scale - 15)
+        self.write_text("Atacar", x_location + width - 130, temp - 1 * height_scale - 15)
 
-        self.write_text("Direita", x_location + width - 130, temp - 3 * height_scale - 15)
+        self.write_text("Interagir", x_location + width - 130, temp - 2 * height_scale - 15)
 
-        self.write_text("Atacar", x_location + width - 130, temp - 4 * height_scale - 15)
-
-        self.write_text("Interagir", x_location + width - 130, temp - 5 * height_scale - 15)
-
-        self.write_text("Craft Faca", x_location + width - 130, temp - 6 * height_scale - 15)
+        self.write_text("Craft Faca", x_location + width - 130, temp - 3 * height_scale - 15)
 
         # self.write_text("Craft Tenda", x_location + width - 130, temp - 7 * height_scale - 15)
 
@@ -208,12 +198,10 @@ class GameMode:
         for i in range(amount_hidden):
             if i == 0:
                 amount_previous_layer = amount_entry_neuron
-                previous_layer = best_character.brain.entry_layer
                 x_previous = entry_neuronX
                 y_previous = entry_neuronY
             else:
                 amount_previous_layer = amount_neuron_hidden
-                previous_layer = best_character.brain.hidden_layer[i - 1]
                 x_previous = hidden_neuronX[i - 1]
                 y_previous = hidden_neuronY[i - 1]
 
@@ -221,16 +209,21 @@ class GameMode:
                 hidden_neuronX[i].append(x_origin + (i + 1) * width_scale)
                 hidden_neuronY[i].append(y_origin - j * height_scale)
 
+                # Getting the greatest weight
+                greatest_weight = 0
+                greatest_weight_index = 0
                 for k in range(amount_previous_layer - 1):
                     weight = best_character.brain.hidden_layer[i].neurons[j].weight[k]
-                    out_value = previous_layer.neurons[k].out_value
-                    if weight * out_value > 0:
-                        self.draw_simple_line(x_previous[k],
-                                              y_previous[k],
-                                              hidden_neuronX[i][j],
-                                              hidden_neuronY[i][j], (255, 0, 0))
+                    if weight > greatest_weight:
+                        greatest_weight = weight
+                        greatest_weight_index = k
+                self.draw_simple_line(x_previous[greatest_weight_index],
+                                      y_previous[greatest_weight_index],
+                                      hidden_neuronX[i][j],
+                                      hidden_neuronY[i][j], (255, 0, 0))
 
-                    else:
+                for k in range(amount_previous_layer - 1):
+                    if k != greatest_weight_index:
                         self.draw_simple_line(x_previous[k],
                                               y_previous[k],
                                               hidden_neuronX[i][j],
@@ -244,17 +237,21 @@ class GameMode:
             out_neuronX.append(x_origin + (amount_hidden + 1) * width_scale)
             out_neuronY.append(temp - i * height_scale)
 
+            # Getting the greatest weight
+            greatest_weight = 0
+            greatest_weight_index = 0
             for k in range(amount_neuron_hidden - 1):
                 weight = best_character.brain.out_layer.neurons[i].weight[k]
-                output = best_character.brain.hidden_layer[last_layer].neurons[k].out_value
+                if weight > greatest_weight:
+                    greatest_weight = weight
+                    greatest_weight_index = k
+            self.draw_simple_line(hidden_neuronX[last_layer][greatest_weight_index],
+                                  hidden_neuronY[last_layer][greatest_weight_index],
+                                  out_neuronX[i],
+                                  out_neuronY[i], (255, 0, 0))
 
-                if weight * output > 0:
-                    self.draw_simple_line(hidden_neuronX[last_layer][k],
-                                          hidden_neuronY[last_layer][k],
-                                          out_neuronX[i],
-                                          out_neuronY[i], (255, 0, 0))
-
-                else:
+            for k in range(amount_neuron_hidden - 1):
+                if k != greatest_weight_index:
                     self.draw_simple_line(hidden_neuronX[last_layer][k],
                                           hidden_neuronY[last_layer][k],
                                           out_neuronX[i],
@@ -262,13 +259,15 @@ class GameMode:
 
         # Drawing neurons
         for i in range(amount_entry_neuron - 1):
+            color = (0, 0, 0)
             self.draw_neuron(entry_neuronX[i],
                              entry_neuronY[i],
-                             neuron_size * 1.3, (0, 0, 0))
+                             neuron_size * 1.3, color)
 
-            self.draw_neuron(entry_neuronX[i],
-                             entry_neuronY[i],
-                             neuron_size, (255, 0, 0))
+            if best_character.brain.entry_layer.neurons[i].out_value > 0:
+                self.draw_neuron(entry_neuronX[i],
+                                 entry_neuronY[i],
+                                 neuron_size, (255, 0, 0))
 
         for i in range(amount_hidden):
             for j in range(amount_neuron_hidden - 1):

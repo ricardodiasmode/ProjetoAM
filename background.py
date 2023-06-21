@@ -2,6 +2,8 @@ import pygame
 from random import randrange
 from enum import Enum
 
+import utils
+
 
 class Background:
     SquareType = Enum('SquareType', ['GRASS', 'LOG', 'ROCK', 'TENT', 'RIVER'])
@@ -28,6 +30,12 @@ class Background:
 
     def __init__(self):
         self.screen = pygame.display.set_mode((self.display_width, self.display_height + 50))
+        self.rocks_location = []
+        self.logs_location = []
+        self.square_image_dict = {}
+        self.square_dict = {
+            (0, 0): 'GRASS'
+        }
 
     def drawBackground(self):
         # loading images
@@ -59,12 +67,12 @@ class Background:
         while currentHeight < self.display_height:
             while currentWidth < self.display_width:
                 randNumber = randrange(100)
-                if 50 >= randNumber > 20: # 30% chance to spawn log
+                if 50 >= randNumber > 20:  # 30% chance to spawn log
                     self.screen.blit(logImg, (currentWidth, currentHeight))
                     self.square_image_dict[(currentWidth, currentHeight)] = logImg
                     self.square_dict[(currentWidth, currentHeight)] = 'LOG'
                     self.logs_location.append((currentWidth, currentHeight))
-                if 80 >= randNumber > 50: # 30% chance to spawn rock
+                elif 80 >= randNumber > 50:  # 30% chance to spawn rock
                     self.screen.blit(rockImg, (currentWidth, currentHeight))
                     self.square_image_dict[(currentWidth, currentHeight)] = rockImg
                     self.square_dict[(currentWidth, currentHeight)] = 'ROCK'
@@ -72,3 +80,16 @@ class Background:
                 currentWidth += self.basic_square_size
             currentHeight += self.basic_square_size
             currentWidth = 0
+
+    def remove_log_or_rock_of_location(self, location):
+        if utils.any_location_equal(location, self.rocks_location):
+            print("removing rock from location: " + str(location))
+            self.rocks_location.remove(location)
+        elif utils.any_location_equal(location, self.logs_location):
+            print("removing log from location: " + str(location))
+            self.logs_location.remove(location)
+
+        self.square_dict[location] = 'GRASS'
+        self.square_image_dict[location] = self.grass0Img
+        self.screen.blit(self.grass0Img, location)
+

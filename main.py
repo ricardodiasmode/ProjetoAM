@@ -28,22 +28,14 @@ def get_entry_params(current_character_ref, current_background_ref):
 
 def react_given_out_param(current_background, current_character_ref, out_params_ref, in_game_mode):
     if out_params_ref[0]:
-        current_character_ref.move((0, -64), current_background, in_game_mode)
+        current_character_ref.move_randomly(current_background, in_game_mode)
     elif out_params_ref[1]:
-        current_character_ref.move((0, 64), current_background, in_game_mode)
-    elif out_params_ref[2]:
-        current_character_ref.move((-64, 0), current_background, in_game_mode)
-    elif out_params_ref[3]:
-        current_character_ref.move((64, 0), current_background, in_game_mode)
-    elif out_params_ref[4]:
         if current_character_ref.has_knife:
             current_character_ref.attack()
-    elif out_params_ref[5]:
+    elif out_params_ref[2]:
         current_character_ref.on_interact(current_background)
-    elif out_params_ref[6]:
-        current_character_ref.on_craft_knife_pressed(current_background)
-    # elif out_params_ref[7]:
-    #     current_character_ref.on_craft_tent_pressed(current_background)
+    elif out_params_ref[3]:
+        current_character_ref.on_craft_knife_pressed(current_background, game_mode)
 
 
 # basic pygame setups
@@ -75,10 +67,10 @@ while not done:
     clock.tick(60)
 
     # we need to see what is happening
-    time.sleep(0.001)
+    time.sleep(0.1)
 
-    # die after 5 turns if character has no log or stone
-    if current_turn == 5:
+    # die after x turns if character has no log or stone
+    if current_turn == 10:
         players_to_remove = []
         for current_character in game_mode.characters:
             if not current_character.has_log and not current_character.has_rock:
@@ -87,8 +79,8 @@ while not done:
         for current_player in players_to_remove:
             game_mode.remove_player(current_player)
 
-    # die after 15 turns if character has no knife
-    if current_turn == 15:
+    # die after y turns if character has no knife
+    if current_turn == 50:
         players_to_remove = []
         for current_character in game_mode.characters:
             if not current_character.has_knife:
@@ -97,8 +89,8 @@ while not done:
         for current_player in players_to_remove:
             game_mode.remove_player(current_player)
 
-    # die after 30 turns if character has knife and didn't kill anyone
-    if current_turn == 30:
+    # die after z turns if character has knife and didn't kill anyone
+    if current_turn == 100:
         players_to_remove = []
         for current_character in game_mode.characters:
             if current_character.has_knife and not current_character.has_killed:

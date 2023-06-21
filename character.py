@@ -1,5 +1,7 @@
 import math
 import random
+import time
+
 import utils
 import pygame
 import neuralNetwork
@@ -34,6 +36,16 @@ class Character:
         self.dna = []
         for i in range(neuralNetwork.neural_network_get_weight_amount(self.brain)):
             self.dna.append((random.randint(0, 20000) / 10.0) - 1000.0)
+
+        if current_background.square_dict[self.current_position] == "LOG":
+            self.remove_item_on_ground(current_background, "LOG")
+        elif current_background.square_dict[self.current_position] == "ROCK":
+            self.remove_item_on_ground(current_background, "ROCK")
+
+    def move_randomly(self, current_background, game_mode):
+        random_x = random.randint(-1, 1)
+        random_y = random.randint(-1, 1)
+        self.move((random_x*64, random_y*64), current_background, game_mode)
 
     def move(self, position, current_background, game_mode):
         if utils.any_location_equal(position, game_mode.get_all_characters_location(self)):
@@ -75,27 +87,32 @@ class Character:
             else:
                 self.playerImg = pygame.image.load('RedCharacter.png')
 
-    def on_interact(self, current_background):
-        if current_background.square_dict[self.current_position] == "LOG":
-            if self.has_log or self.has_knife:
-                return
-            print("GOT LOG, DNA: " + str(self.dna))
-            self.has_log = True
+    def remove_item_on_ground(self, current_background, item):
+        if item == "LOG":
             current_background.screen.blit(current_background.grass1Img, self.current_position)
             current_background.screen.blit(self.playerImg, self.current_position)
             current_background.square_dict[self.current_position] = "GRASS"
             current_background.square_image_dict[self.current_position] = current_background.grass1Img
-        elif current_background.square_dict[self.current_position] == "ROCK":
-            if self.has_rock or self.has_knife:
-                return
-            print("GOT ROCK! dna: " + str(self.dna))
-            self.has_rock = True
+        else:
             current_background.screen.blit(current_background.grass3Img, self.current_position)
             current_background.screen.blit(self.playerImg, self.current_position)
             current_background.square_dict[self.current_position] = "GRASS"
             current_background.square_image_dict[self.current_position] = current_background.grass3Img
-        self.update_image()
 
+    def on_interact(self, current_background):
+        if current_background.square_dict[self.current_position] == "LOG":
+            if self.has_log or self.has_knife:
+                return
+            print("GOT LOG!")
+            self.has_log = True
+            self.remove_item_on_ground("LOG")
+        elif current_background.square_dict[self.current_position] == "ROCK":
+            if self.has_rock or self.has_knife:
+                return
+            print("GOT ROCK!")
+            self.has_rock = True
+            self.remove_item_on_ground("ROCK")
+        self.update_image()
 
     def on_craft_tent_pressed(self, current_background):
         self.try_create_tent(current_background)
@@ -133,8 +150,10 @@ class Character:
         return not self.has_knife and self.has_log \
             and self.has_rock
 
-    def on_craft_knife_pressed(self, current_background):
+    def on_craft_knife_pressed(self, current_background, game_mode):
         if self.can_create_knife():
+            print("CRAFTED KNIFE!")
+            time.sleep(10)
             self.has_log = False
             self.has_rock = False
             self.has_knife = True
@@ -143,18 +162,20 @@ class Character:
             else:
                 self.playerImg = pygame.image.load('RedCharacterWithKnife.png')
             current_background.screen.blit(self.playerImg, self.current_position)
+        # elif not self.has_knife and not self.has_log:
+        #     self.die(game_mode)  # Dying if you try to create a knife without the necessary resources
 
-    def walk_left(self, current_background):
-        self.move((-64, 0), current_background)
+    def walk_left(self, current_background, game_mode):
+        self.move((-64, 0), current_background, game_mode)
 
-    def walk_right(self, current_background):
-        self.move((64, 0), current_background)
+    def walk_right(self, current_background, game_mode):
+        self.move((64, 0), current_background, game_mode)
 
-    def walk_up(self, current_background):
-        self.move((0, -64), current_background)
+    def walk_up(self, current_background, game_mode):
+        self.move((0, -64), current_background, game_mode)
 
-    def walk_down(self, current_background):
-        self.move((0, 64), current_background)
+    def walk_down(self, current_background, game_mode):
+        self.move((0, 64), current_background, game_mode)
 
     def walk_to_closest_enemy(self, current_background):
         if self.closest_enemy is None:
