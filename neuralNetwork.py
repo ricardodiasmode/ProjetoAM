@@ -1,31 +1,14 @@
 import random
 
-LEARNING_RATE = 0.1
 INITIAL_WEIGHT_RATE = 1.0
 BIAS = 1
 
 
-def func(X):
-    if X == 0:
+def relu(x):
+    if x < 0:
         return 0
-    elif X < 0:
-        return -1
-    else:
-        return 1
-
-
-def reluDx(X):
-    if X < 0:
-        return 0
-    else:
-        return 1
-
-
-def relu(X):
-    if X < 0:
-        return 0
-    elif X < 10000:
-        return X
+    elif x < 10000:
+        return x
     else:
         return 10000
 
@@ -46,8 +29,8 @@ class Layer:
 
 class NeuralNetwork:
     BIAS = 1
-    AMOUNT_ENTRY_NEURON = 6 + BIAS
-    AMOUNT_HIDDEN_NEURON = [8 + BIAS]
+    AMOUNT_ENTRY_NEURON = 3 + BIAS
+    AMOUNT_HIDDEN_NEURON = [5 + BIAS]
     AMOUNT_OUT_NEURON = 5
 
     # hidden_layers_array is an array of int. The nth position is the number of neurons in the nth layer
@@ -83,43 +66,35 @@ def neural_network_copy_weights(neural_network):
 
 
 def neural_network_calculate_weights(neural_network):
-    # Calculando saidas entre a camada de entrada e a primeira camada escondida
-    for i in range(neural_network.hidden_layer[0].amount_neuron - BIAS):
-        summation = 0
-        for j in range(neural_network.entry_layer.amount_neuron):
-            summation += neural_network.entry_layer.neurons[j].out_value * \
-                         neural_network.hidden_layer[0].neurons[i].weight[j]
-        neural_network.hidden_layer[0].neurons[i].out_value = relu(summation)
+    # Calculando saídas entre a camada de entrada e a primeira camada escondida
+    hidden_layer_1 = neural_network.hidden_layer[0]
 
-    k = 0
-    # Calculando saidas entre a camada escondida k e a camada escondida k-1
-    for k in range(1, neural_network.amount_of_hidden_layers):
-        for i in range(neural_network.hidden_layer[k].amount_neuron - BIAS):
-            summation = 0
-            for j in range(neural_network.hidden_layer[k - 1].amount_neuron):
-                summation += neural_network.hidden_layer[k - 1].neurons[j].out_value * \
-                             neural_network.hidden_layer[k].neurons[i].weight[j]
-            neural_network.hidden_layer[k].neurons[i].out_value = relu(summation)
+    for neuron_h1 in hidden_layer_1.neurons:
+        summation = sum(neuron_i.out_value * weight_i for neuron_i, weight_i in zip(neural_network.entry_layer.neurons, neuron_h1.weight))
+        neuron_h1.out_value = relu(summation)
 
-    # Calculando saidas entre a camada de saida e a ultima camada escondida
-    for i in range(neural_network.out_layer.amount_neuron):
-        summation = 0
-        for j in range(neural_network.hidden_layer[k - 1].amount_neuron):
-            summation += neural_network.hidden_layer[k - 1].neurons[j].out_value * \
-                         neural_network.out_layer.neurons[i].weight[j]
-        neural_network.out_layer.neurons[i].out_value = relu(summation)
+    # Calculando saídas entre as camadas escondidas
+    amount_hidden_layers = neural_network.amount_of_hidden_layers
+    hidden_layers = neural_network.hidden_layer
 
-    bigger_out_value = 0
-    bigger_out_value_index = 0
-    for i in range(neural_network.out_layer.amount_neuron):
-        if neural_network.out_layer.neurons[i].out_value > bigger_out_value:
-            bigger_out_value = neural_network.out_layer.neurons[i].out_value
-            bigger_out_value_index = i
-    for i in range(neural_network.out_layer.amount_neuron):
-        if i == bigger_out_value_index:
-            neural_network.out_layer.neurons[i].out_value = 1
-        else:
-            neural_network.out_layer.neurons[i].out_value = 0
+    for k in range(1, amount_hidden_layers):
+        hidden_layer_k = hidden_layers[k]
+
+        for neuron_hk in hidden_layer_k.neurons:
+            summation = sum(neuron_prev.out_value * weight_prev for neuron_prev, weight_prev in zip(hidden_layers[k - 1].neurons, neuron_hk.weight))
+            neuron_hk.out_value = relu(summation)
+
+    # Calculando saídas entre a última camada escondida e a camada de saída
+    out_layer = neural_network.out_layer
+
+    for neuron_out in out_layer.neurons:
+        summation = sum(neuron_hk.out_value * weight_hk for neuron_hk, weight_hk in zip(hidden_layers[-1].neurons, neuron_out.weight))
+        neuron_out.out_value = relu(summation)
+
+    # Definindo a maior saída como 1 e o restante como 0
+    max_out_value = max(out_layer.neurons, key=lambda neuron: neuron.out_value)
+    for neuron_out in out_layer.neurons:
+        neuron_out.out_value = 1 if neuron_out == max_out_value else 0
 
 
 def neural_network_initialize_neuron_weight(neuron):

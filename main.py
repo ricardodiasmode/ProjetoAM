@@ -26,13 +26,13 @@ def get_entry_params(current_character_ref, current_background_ref, game_mode_re
                               enemy_locations[closest_enemy_location][1])
 
     entry_params_to_return = [
-        current_character_ref.has_knife,  # first param: has knife
-        current_character_ref.has_log,  # second param: has log
-        current_character_ref.can_create_knife(),  # fourth param: can create knife
+        # current_character_ref.has_knife,  # first param: has knife
+        # current_character_ref.can_create_knife(),  # fourth param: can create knife
+        current_character_ref.has_log,
         closest_log_distance[0],
         closest_log_distance[1],
-        closest_enemy_distance[0],
-        closest_enemy_distance[1]
+        # closest_enemy_distance[0],
+        # closest_enemy_distance[1]
     ]
 
     return entry_params_to_return
@@ -40,15 +40,15 @@ def get_entry_params(current_character_ref, current_background_ref, game_mode_re
 
 def react_given_out_param(current_background, current_character_ref, out_params_ref, in_game_mode):
     if out_params_ref[0]:
-        current_character_ref.walk_to_closest_log(current_background, in_game_mode)
-    elif out_params_ref[1]:
-        current_character_ref.walk_to_closest_enemy(current_background, in_game_mode)
-    elif out_params_ref[2]:
-        current_character_ref.on_attack_pressed(in_game_mode)
-    elif out_params_ref[3]:
-        current_character_ref.on_interact(current_background, game_mode)
+        current_character_ref.walk_left(current_background, in_game_mode)
+    if out_params_ref[1]:
+        current_character_ref.walk_right(current_background, in_game_mode)
+    if out_params_ref[2]:
+        current_character_ref.walk_down(current_background, in_game_mode)
+    if out_params_ref[3]:
+        current_character_ref.walk_up(current_background, in_game_mode)
     elif out_params_ref[4]:
-        current_character_ref.on_craft_knife_pressed(current_background, game_mode)
+        current_character_ref.on_interact(current_background, game_mode)
 
 
 # basic pygame setups
@@ -82,7 +82,7 @@ while not done:
 
     # Update screen
     pygame.display.update()
-    clock.tick(240)
+    clock.tick()
 
     # we need to see what is happening
     # time.sleep(0.001)

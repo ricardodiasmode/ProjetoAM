@@ -6,7 +6,7 @@ import character
 
 
 class GameMode:
-    number_of_characters_each_team = 5
+    number_of_characters_each_team = 10
     generation = 0
     rangeRandom = 0
 
@@ -47,38 +47,7 @@ class GameMode:
         return False
 
     def random_mutations(self):
-        if self.generation == 0:
-            self.rangeRandom = len(self.characters[0].dna)
-
-        # Cloning the best two
-        if self.best_alive_dna is None:
-            self.best_alive_dna = self.characters[0].dna
-
-        for i in range(len(self.characters)):
-            self.characters[i].dna = self.best_alive_dna
-
-        # Mutating
-        for j in range(math.ceil(len(self.characters)/4), math.floor(len(self.characters)/4+len(self.characters)/4)):
-            mutations = random.randint(1, math.ceil(self.rangeRandom) + 1)
-
-            for k in range(mutations):
-                tipo = random.randint(0, 2)
-                indice = random.randint(0, len(self.characters[j].dna) - 1)
-
-                if tipo == 0:
-                    self.characters[j].dna[indice] = random.uniform(-1000.0, 1000.0)  # Valor Aleatório
-                elif tipo == 1:
-                    number = (random.randint(0, 10001) / 10000.0) + 0.5
-                    self.characters[j].dna[indice] = self.characters[j].dna[indice] * number  # Multiplicação aleatória
-                elif tipo == 2:
-                    number = random.uniform(-1000.0, 1000.0) / 100.0
-                    self.characters[j].dna[indice] = self.characters[j].dna[indice] + number  # Soma aleatória
-
-        self.generation += 1
-
-        self.rangeRandom = self.rangeRandom * 0.999
-        if self.rangeRandom < 15:
-            self.rangeRandom = 15
+        TODO()
 
     def get_best_character_alive(self):
         for current_character in self.characters:
@@ -180,15 +149,15 @@ class GameMode:
         temp = y_origin - (height_scale * (amount_neuron_hidden - 2)) / 2.0 + (
                 height_scale * (amount_neuron_out - 1)) / 2.0
 
-        self.write_text("Andar para tronco", x_location + width - 130, temp - 0 * height_scale - 15)
+        self.write_text("Interagir", x_location + width - 130, temp - 0 * height_scale - 15)
 
-        self.write_text("Andar para inimigo", x_location + width - 130, temp - 1 * height_scale - 15)
+        self.write_text("Andar para cima", x_location + width - 130, temp - 1 * height_scale - 15)
 
-        self.write_text("Atacar", x_location + width - 130, temp - 2 * height_scale - 15)
+        self.write_text("Andar para baixo", x_location + width - 130, temp - 2 * height_scale - 15)
 
-        self.write_text("Interagir", x_location + width - 130, temp - 3 * height_scale - 15)
+        self.write_text("Andar para direita", x_location + width - 130, temp - 3 * height_scale - 15)
 
-        self.write_text("Craft Faca", x_location + width - 130, temp - 4 * height_scale - 15)
+        self.write_text("Andar para esquerda", x_location + width - 130, temp - 4 * height_scale - 15)
 
         # Drawing connections
         for i in range(amount_entry_neuron - 1):

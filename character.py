@@ -16,7 +16,7 @@ class Character:
     current_game_mode = None
     current_team_is_blue = False
     closest_enemy = None
-    energy = 50
+    energy = 10
     dead = False
 
     brain = None
@@ -74,11 +74,7 @@ class Character:
             current_background.screen.blit(self.playerImg, self.current_position)
             current_background.square_dict[self.current_position] = "GRASS"
             current_background.square_image_dict[self.current_position] = current_background.grass1Img
-        else:
-            current_background.screen.blit(current_background.grass3Img, self.current_position)
-            current_background.screen.blit(self.playerImg, self.current_position)
-            current_background.square_dict[self.current_position] = "GRASS"
-            current_background.square_image_dict[self.current_position] = current_background.grass3Img
+            current_background.logs_location.remove(self.current_position)
 
     def on_interact(self, current_background, game_mode):
         self.remove_energy(game_mode)
@@ -87,6 +83,7 @@ class Character:
                 self.remove_energy(game_mode)
                 return
             print("GOT LOG!")
+            time.sleep(10)
             self.has_log = True
             self.remove_item_on_ground(current_background, "LOG")
             self.update_image(current_background)
@@ -111,30 +108,6 @@ class Character:
         else:
             self.remove_energy(game_mode)
 
-    def on_attack_pressed(self, game_mode):
-        self.remove_energy(game_mode)
-
-        if self.closest_enemy is None:
-            self.remove_energy(game_mode)
-            return
-
-        if not (math.fabs(self.closest_enemy.current_position[0] - self.current_position[0]) < 90 and
-                math.fabs(self.closest_enemy.current_position[1] - self.current_position[1]) < 90):
-            self.remove_energy(game_mode)
-            return
-
-        if not self.has_knife:
-            self.remove_energy(game_mode)
-            return
-
-        self.attack(game_mode)
-
-    def attack(self, game_mode):
-        self.closest_enemy.die(game_mode)
-        self.closest_enemy = None
-        self.energy = 25
-        print("ATTACKED!")
-
     def walk_left(self, current_background, game_mode):
         self.move((-64, 0), current_background, game_mode)
 
@@ -147,34 +120,29 @@ class Character:
     def walk_down(self, current_background, game_mode):
         self.move((0, 64), current_background, game_mode)
 
-    def walk_to_closest_enemy(self, current_background, game_mode):
-        if self.closest_enemy is None:
-            return
-        if self.closest_enemy.current_position[0] < self.current_position[0]:
-            self.walk_left(current_background, game_mode)
-        elif self.closest_enemy.current_position[0] > self.current_position[0]:
-            self.walk_right(current_background, game_mode)
-        elif self.closest_enemy.current_position[1] < self.current_position[1]:
-            self.walk_up(current_background, game_mode)
-        elif self.closest_enemy.current_position[1] > self.current_position[1]:
-            self.walk_down(current_background, game_mode)
-
     def walk_to_closest_log(self, current_background, game_mode):
-        closest_log_index = 0
+        closest_log_location = (0, 0)
         closest_log_dist = 0
         for current_log_location in current_background.logs_location:
             current_dist = self.distance_to_location(current_log_location)
             if current_dist < closest_log_dist or closest_log_dist == 0:
                 closest_log_dist = current_dist
-                closest_log_index = current_log_location
-        if closest_log_index[0] < self.current_position[0]:
+                closest_log_location = current_log_location
+                if closest_log_dist == 0:
+                    self.remove_energy(game_mode)
+                    self.remove_energy(game_mode)
+                    return
+        if closest_log_location[0] < self.current_position[0]:
             self.walk_left(current_background, game_mode)
-        elif closest_log_index[0] > self.current_position[0]:
+        elif closest_log_location[0] > self.current_position[0]:
             self.walk_right(current_background, game_mode)
-        elif closest_log_index[1] < self.current_position[1]:
+        elif closest_log_location[1] < self.current_position[1]:
             self.walk_up(current_background, game_mode)
-        elif closest_log_index[1] > self.current_position[1]:
+        elif closest_log_location[1] > self.current_position[1]:
             self.walk_down(current_background, game_mode)
+
+        if closest_log_dist == 64:
+            self.energy += 10
 
     def die(self, game_mode):
         if self.dead:
