@@ -1,21 +1,45 @@
 import math
 import random
-
 import pygame
-
 import background
 import character
 
 
 class GameMode:
-    number_of_characters_each_team = 1
+    number_of_characters_each_team = 5
+    generation = 0
+    rangeRandom = 0
+
     current_background = None
     current_players_blue_team = 0
     current_players_red_team = 0
     characters = []
     best_alive_dna = None
-    generation = 0
-    rangeRandom = 0
+
+    def init_new_game(self):
+        print("Current generation: " + str(self.generation))
+        self.current_players_blue_team = 0
+        self.current_players_red_team = 0
+        self.characters = []
+        self.best_alive_dna = None
+
+        self.current_background = background.Background()
+        self.current_background.drawBackground()
+
+        start_position_blue_team = (self.current_background.display_width / 4, 0)
+        start_position_red_team = (start_position_blue_team[0] * 3, start_position_blue_team[1])
+
+        for i in range(self.number_of_characters_each_team):
+            self.characters.append(
+                character.Character((start_position_blue_team[0], start_position_blue_team[1] + i * 64),
+                                    self.current_background, self, True))
+            self.current_players_blue_team += 1
+
+        for i in range(self.number_of_characters_each_team):
+            self.characters.append(
+                character.Character((start_position_red_team[0], start_position_red_team[1] + i * 64),
+                                    self.current_background, self, False))
+            self.current_players_red_team += 1
 
     def check_if_game_over(self):
         if self.current_players_blue_team == 0 or self.current_players_red_team == 0:
@@ -35,7 +59,7 @@ class GameMode:
 
         # Mutating
         for j in range(math.ceil(len(self.characters)/4), math.floor(len(self.characters)/4+len(self.characters)/4)):
-            mutations = random.randint(1, self.rangeRandom + 1)
+            mutations = random.randint(1, math.ceil(self.rangeRandom) + 1)
 
             for k in range(mutations):
                 tipo = random.randint(0, 2)
@@ -55,32 +79,6 @@ class GameMode:
         self.rangeRandom = self.rangeRandom * 0.999
         if self.rangeRandom < 15:
             self.rangeRandom = 15
-
-    def init_new_game(self):
-        print("Current generation: " + str(self.generation))
-        self.current_players_blue_team = 0
-        self.current_players_red_team = 0
-        self.characters = []
-        self.best_alive_dna = None
-        self.rangeRandom = 0
-
-        self.current_background = background.Background()
-        self.current_background.drawBackground()
-
-        start_position_blue_team = (self.current_background.display_width / 4, -24)
-        start_position_red_team = (start_position_blue_team[0] * 3, start_position_blue_team[1])
-
-        for i in range(self.number_of_characters_each_team):
-            self.characters.append(
-                character.Character((start_position_blue_team[0], start_position_blue_team[1] + i * 64),
-                                    self.current_background, self, True))
-            self.current_players_blue_team += 1
-
-        for i in range(self.number_of_characters_each_team):
-            self.characters.append(
-                character.Character((start_position_red_team[0], start_position_red_team[1] + i * 64),
-                                    self.current_background, self, False))
-            self.current_players_red_team += 1
 
     def get_best_character_alive(self):
         for current_character in self.characters:
@@ -125,6 +123,14 @@ class GameMode:
             if current_character != character_to_ignore:
                 locations.append(current_character.current_position)
         return locations
+
+    def get_all_characters_location_with_team(self, character_to_ignore=None, blue_team=True):
+        locations = []
+        for current_character in self.characters:
+            if current_character != character_to_ignore and current_character.current_team_is_blue == blue_team:
+                locations.append(current_character.current_position)
+        return locations
+
 
     def remove_player(self, character_to_remove):
         if character_to_remove.current_team_is_blue:
@@ -174,21 +180,15 @@ class GameMode:
         temp = y_origin - (height_scale * (amount_neuron_hidden - 2)) / 2.0 + (
                 height_scale * (amount_neuron_out - 1)) / 2.0
 
-        self.write_text("Andar", x_location + width - 130, temp - 0 * height_scale - 15)
+        self.write_text("Andar para tronco", x_location + width - 130, temp - 0 * height_scale - 15)
 
-        # self.write_text("Baixo", x_location + width - 130, temp - 1 * height_scale - 15)
-        #
-        # self.write_text("Esquerda", x_location + width - 130, temp - 2 * height_scale - 15)
-        #
-        # self.write_text("Direita", x_location + width - 130, temp - 3 * height_scale - 15)
+        self.write_text("Andar para inimigo", x_location + width - 130, temp - 1 * height_scale - 15)
 
-        self.write_text("Atacar", x_location + width - 130, temp - 1 * height_scale - 15)
+        self.write_text("Atacar", x_location + width - 130, temp - 2 * height_scale - 15)
 
-        self.write_text("Interagir", x_location + width - 130, temp - 2 * height_scale - 15)
+        self.write_text("Interagir", x_location + width - 130, temp - 3 * height_scale - 15)
 
-        self.write_text("Craft Faca", x_location + width - 130, temp - 3 * height_scale - 15)
-
-        # self.write_text("Craft Tenda", x_location + width - 130, temp - 7 * height_scale - 15)
+        self.write_text("Craft Faca", x_location + width - 130, temp - 4 * height_scale - 15)
 
         # Drawing connections
         for i in range(amount_entry_neuron - 1):

@@ -47,8 +47,8 @@ class Layer:
 class NeuralNetwork:
     BIAS = 1
     AMOUNT_ENTRY_NEURON = 6 + BIAS
-    AMOUNT_HIDDEN_NEURON = [5 + BIAS]
-    AMOUNT_OUT_NEURON = 4
+    AMOUNT_HIDDEN_NEURON = [8 + BIAS]
+    AMOUNT_OUT_NEURON = 5
 
     # hidden_layers_array is an array of int. The nth position is the number of neurons in the nth layer
     def __init__(self):

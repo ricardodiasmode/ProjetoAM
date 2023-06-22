@@ -6,7 +6,7 @@ import utils
 
 
 class Background:
-    SquareType = Enum('SquareType', ['GRASS', 'LOG', 'ROCK', 'TENT', 'RIVER'])
+    SquareType = Enum('SquareType', ['GRASS', 'LOG'])
     square_image_dict = {}
 
     # filling background with grass
@@ -14,14 +14,12 @@ class Background:
         (0, 0): 'GRASS'
     }
 
-    rocks_location = []
     logs_location = []
 
     grass0Img = pygame.image.load('Grass0.png')
     grass1Img = pygame.image.load('Grass1.png')
     grass2Img = pygame.image.load('Grass2.png')
     grass3Img = pygame.image.load('Grass3.png')
-    tentImg = pygame.image.load('Tent.png')
 
     display_width = 1280
     display_height = 720
@@ -40,7 +38,6 @@ class Background:
     def drawBackground(self):
         # loading images
         logImg = pygame.image.load('Log.png')
-        rockImg = pygame.image.load('Rock.png')
 
         currentHeight = 0
         currentWidth = 0
@@ -67,25 +64,17 @@ class Background:
         while currentHeight < self.display_height:
             while currentWidth < self.display_width:
                 randNumber = randrange(100)
-                if 50 >= randNumber > 20:  # 30% chance to spawn log
+                if 40 >= randNumber > 20:  # 20% chance to spawn log
                     self.screen.blit(logImg, (currentWidth, currentHeight))
                     self.square_image_dict[(currentWidth, currentHeight)] = logImg
                     self.square_dict[(currentWidth, currentHeight)] = 'LOG'
                     self.logs_location.append((currentWidth, currentHeight))
-                elif 80 >= randNumber > 50:  # 30% chance to spawn rock
-                    self.screen.blit(rockImg, (currentWidth, currentHeight))
-                    self.square_image_dict[(currentWidth, currentHeight)] = rockImg
-                    self.square_dict[(currentWidth, currentHeight)] = 'ROCK'
-                    self.rocks_location.append((currentWidth, currentHeight))
                 currentWidth += self.basic_square_size
             currentHeight += self.basic_square_size
             currentWidth = 0
 
-    def remove_log_or_rock_of_location(self, location):
-        if utils.any_location_equal(location, self.rocks_location):
-            print("removing rock from location: " + str(location))
-            self.rocks_location.remove(location)
-        elif utils.any_location_equal(location, self.logs_location):
+    def remove_log_of_location(self, location):
+        if utils.any_location_equal(location, self.logs_location):
             print("removing log from location: " + str(location))
             self.logs_location.remove(location)
 
