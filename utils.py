@@ -1,21 +1,14 @@
-
 import math
 
 
-def get_closest_location(location_to_compare, locations_array):
-    closest_location_index = 0
+def GetClosestDistance(character_location, log_locations):
     closest_distance = 9999999
-    for i in range(len(locations_array)):
-        current_dist = math.sqrt((location_to_compare[0] - locations_array[i][0]) ** 2 + (
-                location_to_compare[1] - locations_array[i][1]) ** 2)
+    closest_index = 0
+    for i in range(len(log_locations)):
+        current_dist = math.sqrt((character_location[0] - log_locations[i][0]) ** 2 + (
+                character_location[1] - log_locations[i][1]) ** 2)
         if closest_distance > current_dist:
             closest_distance = current_dist
-            closest_location_index = i
-    return closest_location_index
+            closest_index = i
 
-
-def any_location_equal(location_to_compare, locations_array):
-    for i in range(len(locations_array)):
-        if location_to_compare == locations_array[i]:
-            return True
-    return False
+    return log_locations[closest_index]
