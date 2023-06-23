@@ -7,7 +7,7 @@ from layer import Layer
 INITIAL_WEIGHT_RATE = 1.0
 BIAS = 1
 AMOUNT_ENTRY_NEURON = 2 + BIAS
-AMOUNT_HIDDEN_NEURON = [5 + BIAS]
+AMOUNT_HIDDEN_NEURON = [4 + BIAS]
 AMOUNT_OUT_NEURON = 5
 
 
@@ -17,7 +17,7 @@ def relu(x):
 
 def GetEntryParams(character, background):
     ClosestLogDistance = utils.GetClosestDistance(character.CurrentLocation, background.LogLocations)
-    return [  # character.HasLog, # For now, lets hide this
+    return [  # character.HasLog, # Lets hide this till he doesn't get log
         ClosestLogDistance[0], ClosestLogDistance[1]]
 
 

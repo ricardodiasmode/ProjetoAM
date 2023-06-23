@@ -19,7 +19,7 @@ class Character:
     Dna = []
     Score = 0
 
-    MoveOnce = False
+    MovedOnce = False
     PickupOnce = False
 
     def __init__(self, blue_team, location, game_mode):
@@ -83,7 +83,7 @@ class Character:
         self.Score -= 1
         self.RemoveEnergy()
         LocationToGo = (self.CurrentLocation[0] + position[0], self.CurrentLocation[1] + position[1])
-        self.MoveOnce = True
+        self.MovedOnce = True
 
         if LocationToGo[0] < 0 or LocationToGo[0] >= self.GameMode.CurrentBackground.DisplayWidth or \
                 LocationToGo[1] < 0 or LocationToGo[1] >= self.GameMode.CurrentBackground.DisplayHeight:

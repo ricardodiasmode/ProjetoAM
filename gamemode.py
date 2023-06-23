@@ -12,8 +12,8 @@ class GameMode:
     CurrentTurn = 0
     SecondBestCharacterDna = None
     BestCharacterDna = None
-    BestCharacterScore = 0
-    SecondBestCharacterScore = 0
+    BestCharacterScore = -999
+    SecondBestCharacterScore = -999
 
     def __init__(self):
         self.ResetVariables()
@@ -24,6 +24,11 @@ class GameMode:
         self.CurrentTurn = 0
 
     def ResetGame(self):
+        self.BestCharacterDna = None
+        self.BestCharacterScore = -999
+        self.SecondBestCharacterDna = None
+        self.SecondBestCharacterScore = -999
+
         self.GetBestTwoCharacters()
         self.InitNewGame()
         self.MutateCharacters()
