@@ -8,9 +8,12 @@ class GameMode:
     GameIsRunning = True
     Characters = []
     CurrentBackground = None
-    BestDna = None
     NumberOfMutations = 0
     CurrentTurn = 0
+    SecondBestCharacterDna = None
+    BestCharacterDna = None
+    BestCharacterScore = 0
+    SecondBestCharacterScore = 0
 
     def __init__(self):
         self.ResetVariables()
@@ -21,22 +24,23 @@ class GameMode:
         self.CurrentTurn = 0
 
     def ResetGame(self):
+        self.GetBestTwoCharacters()
         self.InitNewGame()
         self.MutateCharacters()
 
     def GetBestTwoCharacters(self):
-        BestCharacter = None
-        SecondBestCharacter = None
         for CurrentCharacter in self.Characters:
-            if BestCharacter is None:
-                BestCharacter = CurrentCharacter
-            elif CurrentCharacter.Score > BestCharacter.Score:
-                SecondBestCharacter = BestCharacter
-                BestCharacter = CurrentCharacter
-            elif SecondBestCharacter is None or CurrentCharacter.Score > SecondBestCharacter.Score:
-                SecondBestCharacter = CurrentCharacter
+            if self.BestCharacterDna is None:
+                self.BestCharacterDna = CurrentCharacter.Dna
+            elif CurrentCharacter.Score > self.BestCharacterScore:
+                self.SecondBestCharacterDna = self.BestCharacterDna
+                self.SecondBestCharacterScore = self.BestCharacterScore
 
-        return BestCharacter, SecondBestCharacter
+                self.BestCharacterScore = CurrentCharacter.Score
+                self.BestCharacterDna = CurrentCharacter.Dna
+            elif self.SecondBestCharacterDna is None or CurrentCharacter.Score >= self.SecondBestCharacterScore:
+                self.SecondBestCharacterDna = CurrentCharacter.Dna
+                self.SecondBestCharacterScore = CurrentCharacter.Score
 
     def InitNewGame(self):
         print("Init generation: " + str(self.CurrentGeneration))
@@ -59,23 +63,26 @@ class GameMode:
             self.NumberOfMutations = len(self.Characters[0].Dna)
 
     def MutateCharacters(self):
-        BestCharacter, SecondBestCharacter = self.GetBestTwoCharacters()
-        self.BestDna = BestCharacter.Dna
-        print("Best DNA: " + str(self.BestDna))
+        if self.BestCharacterDna is None:
+            print("WTF!")
+            return
 
-        self.CloneBestTwoCharacters(BestCharacter, SecondBestCharacter)
+        print("Best DNA: " + str(self.BestCharacterDna))
+        print("Best character score: " + str(self.BestCharacterScore))
+
+        self.CloneBestTwoCharacters()
 
         self.MutateNotClonedCharacters()
         self.NumberOfMutations *= 0.999
 
-    def CloneBestTwoCharacters(self, best_character, second_best_character):
+    def CloneBestTwoCharacters(self):
         for i in range(len(self.Characters)):
             if i % 2 == 0:
                 continue
             if i % 3 == 0:
-                self.Characters[i].Dna = second_best_character.Dna
+                self.Characters[i].Dna = self.SecondBestCharacterDna
             else:
-                self.Characters[i].Dna = best_character.Dna
+                self.Characters[i].Dna = self.BestCharacterDna
 
     def MutateNotClonedCharacters(self):
         for i in range(len(self.Characters)):

@@ -19,6 +19,9 @@ class Character:
     Dna = []
     Score = 0
 
+    MoveOnce = False
+    PickupOnce = False
+
     def __init__(self, blue_team, location, game_mode):
         self.CurrentLocation = location
         self.GameMode = game_mode
@@ -80,6 +83,7 @@ class Character:
         self.Score -= 1
         self.RemoveEnergy()
         LocationToGo = (self.CurrentLocation[0] + position[0], self.CurrentLocation[1] + position[1])
+        self.MoveOnce = True
 
         if LocationToGo[0] < 0 or LocationToGo[0] >= self.GameMode.CurrentBackground.DisplayWidth or \
                 LocationToGo[1] < 0 or LocationToGo[1] >= self.GameMode.CurrentBackground.DisplayHeight:
@@ -104,6 +108,8 @@ class Character:
 
     def PickUp(self):
         self.RemoveEnergy()
+        self.PickupOnce = True
+        self.Score -= 1
         if self.HasLog:
             return
 
@@ -111,7 +117,7 @@ class Character:
             self.HasLog = True
             self.UpdateImage()
             self.RemoveItemOnGround("LOG")
-            self.Score += 15
+            self.Score += 16
             print("Picked up log")
 
     def MutateDna(self, number_of_mutations):
@@ -123,4 +129,4 @@ class Character:
             elif MutationType == 1:
                 self.Dna[IndexToMutate] *= ((random.randint(0, 10000) / 10000.0) + 0.5)
             elif MutationType == 2:
-                self.Dna[IndexToMutate] += ((random.randint(0, 20000) / 10.0) - 1000.0)/100.0
+                self.Dna[IndexToMutate] += (((random.randint(0, 20000) / 10.0) - 1000.0)/100.0)
