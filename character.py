@@ -1,9 +1,16 @@
+import math
 import random
 from math import ceil
 
 import pygame
 
 import neuralNetwork
+import utils
+
+BASE_REWARD = 100
+LOG_REWARD_MULTIPLIER = 1
+CRAFT_REWARD_MULTIPLIER = 3
+KILL_REWARD_MULTIPLIER = 5
 
 
 class Character:
@@ -18,12 +25,14 @@ class Character:
     Brain = None
     Dna = []
     Score = 0
+    ClosestEnemy = None
 
     def __init__(self, blue_team, location, game_mode):
         self.CurrentLocation = location
         self.GameMode = game_mode
         self.BlueTeamMember = blue_team
         self.UpdateImage()
+        ClosestEnemy = None
 
         # initializing neural network
         self.Brain = neuralNetwork.NeuralNetwork()
@@ -65,6 +74,8 @@ class Character:
             self.PickUp()
         elif action_index == 5:
             self.CraftKnife()
+        elif action_index == 6:
+            self.Attack()
 
     def React(self):
         # Set a probability to hit the desired action
@@ -78,14 +89,22 @@ class Character:
                 return
 
         # If no action was hit, take random action
-        self.GetAction(random.randint(0, OutputLen-1))
+        self.GetAction(random.randint(0, OutputLen - 1))
+
+    def Attack(self):
+        self.RemoveEnergy()
+        self.Score -= 1
+        if utils.DistanceBetweenLocations(self.ClosestEnemy.CurrentLocation, self.CurrentLocation) > 64 and \
+                self.HasKnife:
+            self.Score += BASE_REWARD * KILL_REWARD_MULTIPLIER
+            self.ClosestEnemy.Die()
 
     def CraftKnife(self):
         self.RemoveEnergy()
         self.Score -= 1
         if self.HasLog:
             self.HasLog = False
-            self.Score += 30
+            self.Score += BASE_REWARD * CRAFT_REWARD_MULTIPLIER
             self.HasKnife = True
             self.UpdateImage()
 
@@ -123,9 +142,12 @@ class Character:
     def RemoveEnergy(self):
         self.Energy -= 1
         if self.Energy <= 0:
-            self.IsDead = True
-            ImageBelow = self.GameMode.CurrentBackground.SquareImageDict[self.CurrentLocation]
-            self.GameMode.CurrentBackground.Screen.blit(ImageBelow, self.CurrentLocation)
+            self.Die()
+
+    def Die(self):
+        self.IsDead = True
+        ImageBelow = self.GameMode.CurrentBackground.SquareImageDict[self.CurrentLocation]
+        self.GameMode.CurrentBackground.Screen.blit(ImageBelow, self.CurrentLocation)
 
     def PickUp(self):
         self.RemoveEnergy()
@@ -138,7 +160,7 @@ class Character:
             self.HasLog = True
             self.UpdateImage()
             self.RemoveItemOnGround("LOG")
-            self.Score += 16
+            self.Score += BASE_REWARD * LOG_REWARD_MULTIPLIER
 
     def MutateDna(self, number_of_mutations):
         for i in range(ceil(number_of_mutations)):

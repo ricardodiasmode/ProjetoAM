@@ -166,15 +166,21 @@ class GameMode:
         FirstNeuronText = Font.render("XLog", True, (0, 0, 0))
         SecondNeuronText = Font.render("YLog", True, (0, 0, 0))
         ThirdNeuronText = Font.render("HasLog", True, (0, 0, 0))
-        self.CurrentBackground.Screen.blit(FirstNeuronText, (50, initial_y_loc - 13 + EachNeuronOffset))
-        self.CurrentBackground.Screen.blit(SecondNeuronText, (50, initial_y_loc + 1 * EachNeuronOffset - 13 + EachNeuronOffset))
-        self.CurrentBackground.Screen.blit(ThirdNeuronText, (50, initial_y_loc + 2 * EachNeuronOffset - 13 + EachNeuronOffset))
+        ForthNeuronText = Font.render("HasKnife", True, (0, 0, 0))
+        FifthNeuronText = Font.render("XEnemy", True, (0, 0, 0))
+        SixNeuronText = Font.render("YEnemy", True, (0, 0, 0))
+        self.CurrentBackground.Screen.blit(FirstNeuronText, (50, initial_y_loc - 13))
+        self.CurrentBackground.Screen.blit(SecondNeuronText, (50, initial_y_loc + 1 * EachNeuronOffset - 13))
+        self.CurrentBackground.Screen.blit(ThirdNeuronText, (50, initial_y_loc + 2 * EachNeuronOffset - 13))
+        self.CurrentBackground.Screen.blit(ForthNeuronText, (50, initial_y_loc + 3 * EachNeuronOffset - 13))
+        self.CurrentBackground.Screen.blit(FifthNeuronText, (50, initial_y_loc + 4 * EachNeuronOffset - 13))
+        self.CurrentBackground.Screen.blit(SixNeuronText, (50, initial_y_loc + 5 * EachNeuronOffset - 13))
 
         # Drawing first layer neurons
         for i in range(len(BestCharacterBrain.EntryLayer.Neurons) - BIAS):
             NeuronColor = (0, 0, 0) if BestCharacterBrain.EntryLayer.Neurons[i].OutValue == 0 else (255, 0, 0)
             NextLayerOffset = EachNeuronOffset
-            pygame.draw.circle(self.CurrentBackground.Screen, NeuronColor, (100, initial_y_loc + i * EachNeuronOffset + NextLayerOffset), 7)
+            pygame.draw.circle(self.CurrentBackground.Screen, NeuronColor, (100, initial_y_loc + i * EachNeuronOffset), 7)
 
         # Drawing hidden layers neurons
         for i in range(len(BestCharacterBrain.HiddenLayers)):
@@ -196,21 +202,23 @@ class GameMode:
         FourthNeuronText = Font.render("MoveDown", True, (0, 0, 0))
         FifthNeuronText = Font.render("Pickup", True, (0, 0, 0))
         SixNeuronText = Font.render("CraftKnife", True, (0, 0, 0))
+        SevenNeuronText = Font.render("Attack", True, (0, 0, 0))
         self.CurrentBackground.Screen.blit(FirstNeuronText, (210, initial_y_loc - 13))
         self.CurrentBackground.Screen.blit(SecondNeuronText, (210, initial_y_loc + 1 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(ThirdNeuronText, (210, initial_y_loc + 2 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(FourthNeuronText, (210, initial_y_loc + 3 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(FifthNeuronText, (210, initial_y_loc + 4 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(SixNeuronText, (210, initial_y_loc + 5 * EachNeuronOffset - 13))
+        self.CurrentBackground.Screen.blit(SevenNeuronText, (210, initial_y_loc + 6 * EachNeuronOffset - 13))
 
         # Drawing connections
         for i in range(len(BestCharacterBrain.EntryLayer.Neurons) - BIAS):
             for j in range(len(BestCharacterBrain.HiddenLayers[0].Neurons) - BIAS):
                 if BestCharacterBrain.EntryLayer.Neurons[i].OutValue > 0 and BestCharacterBrain.HiddenLayers[0].Neurons[j].OutValue > 0:
-                    pygame.draw.line(self.CurrentBackground.Screen, (255, 0, 0), (100, initial_y_loc + i * EachNeuronOffset + EachNeuronOffset),
+                    pygame.draw.line(self.CurrentBackground.Screen, (255, 0, 0), (100, initial_y_loc + i * EachNeuronOffset),
                                      (150, initial_y_loc + j * EachNeuronOffset), 1)
                 else:
-                    pygame.draw.line(self.CurrentBackground.Screen, (0, 0, 0), (100, initial_y_loc + i * EachNeuronOffset + EachNeuronOffset),
+                    pygame.draw.line(self.CurrentBackground.Screen, (0, 0, 0), (100, initial_y_loc + i * EachNeuronOffset),
                                      (150, initial_y_loc + j * EachNeuronOffset), 1)
         if len(BestCharacterBrain.HiddenLayers) > 1:
             for i in range(len(BestCharacterBrain.HiddenLayers[0].Neurons) - BIAS):
@@ -232,7 +240,7 @@ class GameMode:
 
     def DrawInfo(self):
         InitialYLoc = 50
-        pygame.draw.rect(self.CurrentBackground.Screen, (255, 255, 255), (50, InitialYLoc, 250, 175))
+        pygame.draw.rect(self.CurrentBackground.Screen, (255, 255, 255), (50, InitialYLoc, 250, 200))
 
         self.DrawCurrentGeneration(InitialYLoc)
         self.GetBestTwoCharacters()

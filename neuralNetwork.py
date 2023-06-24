@@ -6,21 +6,25 @@ from layer import Layer
 
 INITIAL_WEIGHT_RATE = 1.0
 BIAS = 1
-AMOUNT_ENTRY_NEURON = 3 + BIAS
-AMOUNT_HIDDEN_NEURON = [5 + BIAS]
-AMOUNT_OUT_NEURON = 6
+AMOUNT_ENTRY_NEURON = 6 + BIAS
+AMOUNT_HIDDEN_NEURON = [6 + BIAS]
+AMOUNT_OUT_NEURON = 7
 
 
 def relu(x):
     return max(0, x)
 
 
-def GetEntryParams(character, background):
-    ClosestLogDistance = utils.GetClosestDistance(character.CurrentLocation, background.LogLocations)
+def GetEntryParams(character, gamemode):
+    ClosestLogDistance = utils.GetClosestDistanceToLogs(character.CurrentLocation, gamemode.CurrentBackground.LogLocations)
+    ClosestEnemyDistance = utils.GetClosestDistanceToCharacters(character, gamemode.Characters)
     return [
-        ClosestLogDistance[0],
-        ClosestLogDistance[1],
-        character.HasLog
+        ClosestLogDistance[0],  # Closest log X dist
+        ClosestLogDistance[1],  # Closest log Y dist
+        character.HasLog,
+        character.HasKnife,
+        ClosestEnemyDistance[0] > 64,  # Closest enemy X dist
+        ClosestEnemyDistance[1] > 64  # Closest enemy Y dist
     ]
 
 
@@ -48,13 +52,13 @@ class NeuralNetwork:
             self.OutLayer.Neurons[j].Weights.append(
                 random.uniform(-INITIAL_WEIGHT_RATE, INITIAL_WEIGHT_RATE))
 
-    def Think(self, character, background):
-        self.FeedEntryLayer(character, background)
+    def Think(self, character, gamemode):
+        self.FeedEntryLayer(character, gamemode)
         self.CalculateWeights()
         self.LastCalculatedOutput = self.GetOutput()
 
-    def FeedEntryLayer(self, character, background):
-        EntryParams = GetEntryParams(character, background)
+    def FeedEntryLayer(self, character, gamemode):
+        EntryParams = GetEntryParams(character, gamemode)
         for i in range(len(self.EntryLayer.Neurons) - BIAS):
             self.EntryLayer.Neurons[i].OutValue = EntryParams[i]
 

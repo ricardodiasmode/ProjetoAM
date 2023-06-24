@@ -21,7 +21,7 @@ while GameMode.GameIsRunning:
     for CurrentCharacter in GameMode.Characters:
         if CurrentCharacter.IsDead:
             continue
-        CurrentCharacter.Brain.Think(CurrentCharacter, GameMode.CurrentBackground)
+        CurrentCharacter.Brain.Think(CurrentCharacter, GameMode)
         CurrentCharacter.React()
         GameMode.DrawInfo()  # This slow down the game a lot
 
