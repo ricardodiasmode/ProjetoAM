@@ -165,8 +165,10 @@ class GameMode:
         Font = pygame.font.SysFont("comicsansms", 14)
         FirstNeuronText = Font.render("XLog", True, (0, 0, 0))
         SecondNeuronText = Font.render("YLog", True, (0, 0, 0))
+        ThirdNeuronText = Font.render("HasLog", True, (0, 0, 0))
         self.CurrentBackground.Screen.blit(FirstNeuronText, (50, initial_y_loc - 13 + EachNeuronOffset))
         self.CurrentBackground.Screen.blit(SecondNeuronText, (50, initial_y_loc + 1 * EachNeuronOffset - 13 + EachNeuronOffset))
+        self.CurrentBackground.Screen.blit(ThirdNeuronText, (50, initial_y_loc + 2 * EachNeuronOffset - 13 + EachNeuronOffset))
 
         # Drawing first layer neurons
         for i in range(len(BestCharacterBrain.EntryLayer.Neurons) - BIAS):
@@ -193,11 +195,13 @@ class GameMode:
         ThirdNeuronText = Font.render("MoveUp", True, (0, 0, 0))
         FourthNeuronText = Font.render("MoveDown", True, (0, 0, 0))
         FifthNeuronText = Font.render("Pickup", True, (0, 0, 0))
+        SixNeuronText = Font.render("CraftKnife", True, (0, 0, 0))
         self.CurrentBackground.Screen.blit(FirstNeuronText, (210, initial_y_loc - 13))
         self.CurrentBackground.Screen.blit(SecondNeuronText, (210, initial_y_loc + 1 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(ThirdNeuronText, (210, initial_y_loc + 2 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(FourthNeuronText, (210, initial_y_loc + 3 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(FifthNeuronText, (210, initial_y_loc + 4 * EachNeuronOffset - 13))
+        self.CurrentBackground.Screen.blit(SixNeuronText, (210, initial_y_loc + 5 * EachNeuronOffset - 13))
 
         # Drawing connections
         for i in range(len(BestCharacterBrain.EntryLayer.Neurons) - BIAS):
@@ -228,7 +232,7 @@ class GameMode:
 
     def DrawInfo(self):
         InitialYLoc = 50
-        pygame.draw.rect(self.CurrentBackground.Screen, (255, 255, 255), (50, InitialYLoc, 250, 150))
+        pygame.draw.rect(self.CurrentBackground.Screen, (255, 255, 255), (50, InitialYLoc, 250, 175))
 
         self.DrawCurrentGeneration(InitialYLoc)
         self.GetBestTwoCharacters()

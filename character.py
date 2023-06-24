@@ -63,6 +63,8 @@ class Character:
             self.MoveDown()
         elif action_index == 4:
             self.PickUp()
+        elif action_index == 5:
+            self.CraftKnife()
 
     def React(self):
         # Set a probability to hit the desired action
@@ -77,6 +79,15 @@ class Character:
 
         # If no action was hit, take random action
         self.GetAction(random.randint(0, OutputLen-1))
+
+    def CraftKnife(self):
+        self.RemoveEnergy()
+        self.Score -= 1
+        if self.HasLog:
+            self.HasLog = False
+            self.Score += 30
+            self.HasKnife = True
+            self.UpdateImage()
 
     def MoveLeft(self):
         self.Move((-64, 0))
@@ -119,7 +130,8 @@ class Character:
     def PickUp(self):
         self.RemoveEnergy()
         self.Score -= 1
-        if self.HasLog:
+        if self.HasLog or self.HasKnife:
+            self.Score -= 1
             return
 
         if self.GameMode.CurrentBackground.SquareDict[self.CurrentLocation] == "LOG":

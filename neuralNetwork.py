@@ -6,9 +6,9 @@ from layer import Layer
 
 INITIAL_WEIGHT_RATE = 1.0
 BIAS = 1
-AMOUNT_ENTRY_NEURON = 2 + BIAS
-AMOUNT_HIDDEN_NEURON = [4 + BIAS]
-AMOUNT_OUT_NEURON = 5
+AMOUNT_ENTRY_NEURON = 3 + BIAS
+AMOUNT_HIDDEN_NEURON = [5 + BIAS]
+AMOUNT_OUT_NEURON = 6
 
 
 def relu(x):
@@ -17,8 +17,11 @@ def relu(x):
 
 def GetEntryParams(character, background):
     ClosestLogDistance = utils.GetClosestDistance(character.CurrentLocation, background.LogLocations)
-    return [  # character.HasLog, # Lets hide this till he doesn't get log
-        ClosestLogDistance[0], ClosestLogDistance[1]]
+    return [
+        ClosestLogDistance[0],
+        ClosestLogDistance[1],
+        character.HasLog
+    ]
 
 
 class NeuralNetwork:
