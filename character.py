@@ -52,17 +52,31 @@ class Character:
             CurrentBackground.SquareImageDict[self.CurrentLocation] = CurrentBackground.Grass1Img
             CurrentBackground.LogLocations.remove(self.CurrentLocation)
 
-    def React(self):
-        if self.Brain.LastCalculatedOutput[0]:
+    def GetAction(self, action_index):
+        if action_index == 0:
             self.MoveLeft()
-        elif self.Brain.LastCalculatedOutput[1]:
+        elif action_index == 1:
             self.MoveRight()
-        elif self.Brain.LastCalculatedOutput[2]:
+        elif action_index == 2:
             self.MoveUp()
-        elif self.Brain.LastCalculatedOutput[3]:
+        elif action_index == 3:
             self.MoveDown()
-        elif self.Brain.LastCalculatedOutput[4]:
+        elif action_index == 4:
             self.PickUp()
+
+    def React(self):
+        # Set a probability to hit the desired action
+        ProbabilityToHit = 0.9
+        random_number = random.uniform(0, 1)
+        OutputLen = len(self.Brain.LastCalculatedOutput)
+
+        for i in range(OutputLen):
+            if random_number < ProbabilityToHit and self.Brain.LastCalculatedOutput[i] > 0:
+                self.GetAction(i)
+                return
+
+        # If no action was hit, take random action
+        self.GetAction(random.randint(0, OutputLen-1))
 
     def MoveLeft(self):
         self.Move((-64, 0))
@@ -113,7 +127,6 @@ class Character:
             self.UpdateImage()
             self.RemoveItemOnGround("LOG")
             self.Score += 16
-            print("Picked up log")
 
     def MutateDna(self, number_of_mutations):
         for i in range(ceil(number_of_mutations)):
@@ -124,4 +137,4 @@ class Character:
             elif MutationType == 1:
                 self.Dna[IndexToMutate] *= ((random.randint(0, 10000) / 10000.0) + 0.5)
             elif MutationType == 2:
-                self.Dna[IndexToMutate] += (((random.randint(0, 20000) / 10.0) - 1000.0)/100.0)
+                self.Dna[IndexToMutate] += (((random.randint(0, 20000) / 10.0) - 1000.0) / 100.0)
