@@ -66,18 +66,18 @@ class Character:
     def GetAction(self, action_index):
         if action_index == 0:
             self.MoveToLog()
+        # elif action_index == 1:
+        #     self.MoveToEnemy()
         elif action_index == 1:
-            self.MoveToEnemy()
-        elif action_index == 2:
             self.PickUp()
-        elif action_index == 3:
-            self.CraftKnife()
-        elif action_index == 4:
-            self.Attack()
+        # elif action_index == 3:
+        #     self.CraftKnife()
+        # elif action_index == 4:
+        #     self.Attack()
 
     def React(self):
         # Set a probability to hit the desired action
-        ProbabilityToHit = 0.9
+        ProbabilityToHit = 0.99
         random_number = random.uniform(0, 1)
         OutputLen = len(self.Brain.LastCalculatedOutput)
 
@@ -91,21 +91,23 @@ class Character:
 
     def Attack(self):
         self.RemoveEnergy()
-        self.Score -= 1
         if utils.DistanceBetweenLocations(self.ClosestEnemy.CurrentLocation, self.CurrentLocation) > 64 and \
                 self.HasKnife:
             self.Score += BASE_REWARD * KILL_REWARD_MULTIPLIER
             self.ClosestEnemy.Die()
             self.Kills += 1
+        else:
+            self.Score -= 1
 
     def CraftKnife(self):
         self.RemoveEnergy()
-        self.Score -= 1
-        if self.HasLog:
+        if self.HasLog and not self.HasKnife:
             self.HasLog = False
             self.Score += BASE_REWARD * CRAFT_REWARD_MULTIPLIER
             self.HasKnife = True
             self.UpdateImage()
+        else:
+            self.Score -= 1
 
     def MoveLeft(self):
         self.Move((-64, 0))
@@ -120,6 +122,8 @@ class Character:
         self.Move((0, 64))
 
     def Move(self, position):
+        self.Score -= 1
+        self.RemoveEnergy()
         LocationToGo = (self.CurrentLocation[0] + position[0], self.CurrentLocation[1] + position[1])
 
         if LocationToGo[0] < 0 or LocationToGo[0] >= self.GameMode.CurrentBackground.DisplayWidth or \
@@ -137,8 +141,6 @@ class Character:
         self.CurrentLocation = LocationToGo
 
     def MoveToLog(self):
-        self.Score -= 1
-        self.RemoveEnergy()
         if self.CurrentLocation[0] - self.ClosestLogLocation[0] > 0:
             self.MoveLeft()
         elif self.CurrentLocation[0] - self.ClosestLogLocation[0] < 0:
@@ -147,10 +149,10 @@ class Character:
             self.MoveUp()
         elif self.CurrentLocation[1] - self.ClosestLogLocation[1] < 0:
             self.MoveDown()
+        else:
+            self.RemoveEnergy()
 
     def MoveToEnemy(self):
-        self.Score -= 1
-        self.RemoveEnergy()
         if self.CurrentLocation[0] - self.ClosestEnemy.CurrentLocation[0] > 0:
             self.MoveLeft()
         elif self.CurrentLocation[0] - self.ClosestEnemy.CurrentLocation[0] < 0:
@@ -159,6 +161,8 @@ class Character:
             self.MoveUp()
         elif self.CurrentLocation[1] - self.ClosestEnemy.CurrentLocation[1] < 0:
             self.MoveDown()
+        else:
+            raise Exception("Wtf, you are on the same location as the enemy!")
 
     def RemoveEnergy(self):
         self.Energy -= 1
@@ -172,7 +176,6 @@ class Character:
 
     def PickUp(self):
         self.RemoveEnergy()
-        self.Score -= 1
         if self.HasLog or self.HasKnife:
             self.Score -= 1
             return
@@ -187,9 +190,3 @@ class Character:
         for i in range(ceil(number_of_mutations)):
             IndexToMutate = random.randint(0, len(self.Dna) - 1)
             self.Dna[IndexToMutate] *= random.uniform(-2, 2)
-
-    def GetState(self):
-
-        if self.HasKnife:
-            return 3
-

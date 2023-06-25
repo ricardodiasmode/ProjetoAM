@@ -1,6 +1,4 @@
 import math
-import time
-
 import pygame
 
 import background
@@ -8,7 +6,9 @@ import character
 
 
 class GameMode:
-    NumberOfCharactersEachTeam = 5
+    NumberOfCharactersEachTeam = 8
+    GenerationsToAcceptConvergence = 1000
+
     CurrentGeneration = 0
     GameIsRunning = True
     Characters = []
@@ -20,11 +20,13 @@ class GameMode:
     LastGenerationBestCharacterDna = None
     BestCharacterScore = -999
     SecondBestCharacterScore = -999
-    BestFitEver = -999
     BestCharacterRef = None
     BestCharacterKills = 0
+
     NetworkConverged = False
-    GenerationsWithoutDnaChange = 0
+    GenerationsWithoutScoreRecord = 0
+    BestFitEver = -999
+    BestDnaEver = None
 
     def __init__(self):
         self.ResetVariables()
@@ -39,13 +41,12 @@ class GameMode:
 
         if self.BestCharacterScore > self.BestFitEver:
             self.BestFitEver = self.BestCharacterScore
-
-        if self.LastGenerationBestCharacterDna == self.BestCharacterDna:
-            self.GenerationsWithoutDnaChange += 1
-            if self.GenerationsWithoutDnaChange >= 20:
-                self.NetworkConverged = True
+            self.BestDnaEver = self.BestCharacterDna
+            self.GenerationsWithoutScoreRecord = 0
         else:
-            self.GenerationsWithoutDnaChange = 0
+            self.GenerationsWithoutScoreRecord += 1
+            if self.GenerationsWithoutScoreRecord >= self.GenerationsToAcceptConvergence:
+                self.NetworkConverged = True
 
         self.InitNewGame()
         self.MutateCharacters()
@@ -105,7 +106,7 @@ class GameMode:
         if not self.NetworkConverged:
             self.CloneBestTwoCharacters()
             self.MutateNotClonedCharacters()
-            self.NumberOfMutations *= 0.99
+            self.NumberOfMutations *= 0.999
             if self.NumberOfMutations < len(self.Characters[0].Dna)/5:
                 self.NumberOfMutations = len(self.Characters[0].Dna)/5
                 print("Number of mutation is in the minimum. The net should have converged.")
@@ -113,7 +114,7 @@ class GameMode:
         else:
             print("Network converged. No mutations will occur.")
             for i in range(len(self.Characters)):
-                self.Characters[i].Dna = self.BestCharacterDna
+                self.Characters[i].Dna = self.BestDnaEver
 
     def CloneBestTwoCharacters(self):
         for i in range(len(self.Characters)):

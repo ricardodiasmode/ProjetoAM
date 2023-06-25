@@ -6,9 +6,9 @@ from layer import Layer
 
 INITIAL_WEIGHT_RATE = 1.0
 BIAS = 1
-AMOUNT_ENTRY_NEURON = 6 + BIAS
-AMOUNT_HIDDEN_NEURON = [6 + BIAS]
-AMOUNT_OUT_NEURON = 5
+AMOUNT_ENTRY_NEURON = 2 + BIAS
+AMOUNT_HIDDEN_NEURON = [4 + BIAS]
+AMOUNT_OUT_NEURON = 2
 
 
 def relu(x):
@@ -21,10 +21,10 @@ def GetEntryParams(character, gamemode):
     return [
         ClosestLogDistance[0] > 0,  # Closest log X dist
         ClosestLogDistance[1] > 0,  # Closest log Y dist
-        character.HasLog,
-        character.HasKnife,
-        ClosestEnemyDistance[0] > 64,  # Closest enemy X dist
-        ClosestEnemyDistance[1] > 64  # Closest enemy Y dist
+        # character.HasLog,
+        # character.HasKnife,
+        # ClosestEnemyDistance[0] > 64,  # Closest enemy X dist
+        # ClosestEnemyDistance[1] > 64  # Closest enemy Y dist
     ]
 
 
@@ -84,7 +84,6 @@ class NeuralNetwork:
             self.OutLayer.Neurons[j].OutValue = relu(Sum)
 
     def GetOutput(self, character):
-        CurrentState = character.GetState()
         GreaterOutValueIndex = 0
         Output = []
         OutputToPrint = []
