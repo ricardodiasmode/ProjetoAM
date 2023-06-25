@@ -1,14 +1,15 @@
 import math
 
 
-def GetClosestDistanceToLogs(character_location, log_locations):
+def GetClosestDistanceToLogs(character, log_locations):
     closest_distance = 9999999
     closest_index = 0
     for i in range(len(log_locations)):
-        current_dist = DistanceBetweenLocations(character_location, log_locations[i])
+        current_dist = DistanceBetweenLocations(character.CurrentLocation, log_locations[i])
         if closest_distance > current_dist:
             closest_distance = current_dist
             closest_index = i
+    character.ClosestLogLocation = log_locations[closest_index]
     return log_locations[closest_index]
 
 

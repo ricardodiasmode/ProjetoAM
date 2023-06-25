@@ -26,13 +26,15 @@ class Character:
     Dna = []
     Score = 0
     ClosestEnemy = None
+    ClosestLogLocation = []
+    Kills = 0
 
     def __init__(self, blue_team, location, game_mode):
         self.CurrentLocation = location
         self.GameMode = game_mode
         self.BlueTeamMember = blue_team
         self.UpdateImage()
-        ClosestEnemy = None
+        self.ClosestEnemy = None
 
         # initializing neural network
         self.Brain = neuralNetwork.NeuralNetwork()
@@ -63,18 +65,14 @@ class Character:
 
     def GetAction(self, action_index):
         if action_index == 0:
-            self.MoveLeft()
+            self.MoveToLog()
         elif action_index == 1:
-            self.MoveRight()
+            self.MoveToEnemy()
         elif action_index == 2:
-            self.MoveUp()
-        elif action_index == 3:
-            self.MoveDown()
-        elif action_index == 4:
             self.PickUp()
-        elif action_index == 5:
+        elif action_index == 3:
             self.CraftKnife()
-        elif action_index == 6:
+        elif action_index == 4:
             self.Attack()
 
     def React(self):
@@ -98,6 +96,7 @@ class Character:
                 self.HasKnife:
             self.Score += BASE_REWARD * KILL_REWARD_MULTIPLIER
             self.ClosestEnemy.Die()
+            self.Kills += 1
 
     def CraftKnife(self):
         self.RemoveEnergy()
@@ -121,8 +120,6 @@ class Character:
         self.Move((0, 64))
 
     def Move(self, position):
-        self.Score -= 1
-        self.RemoveEnergy()
         LocationToGo = (self.CurrentLocation[0] + position[0], self.CurrentLocation[1] + position[1])
 
         if LocationToGo[0] < 0 or LocationToGo[0] >= self.GameMode.CurrentBackground.DisplayWidth or \
@@ -138,6 +135,30 @@ class Character:
         self.GameMode.CurrentBackground.Screen.blit(ImageBelow, self.CurrentLocation)
         self.GameMode.CurrentBackground.Screen.blit(self.PlayerImage, LocationToGo)
         self.CurrentLocation = LocationToGo
+
+    def MoveToLog(self):
+        self.Score -= 1
+        self.RemoveEnergy()
+        if self.CurrentLocation[0] - self.ClosestLogLocation[0] > 0:
+            self.MoveLeft()
+        elif self.CurrentLocation[0] - self.ClosestLogLocation[0] < 0:
+            self.MoveRight()
+        elif self.CurrentLocation[1] - self.ClosestLogLocation[1] > 0:
+            self.MoveUp()
+        elif self.CurrentLocation[1] - self.ClosestLogLocation[1] < 0:
+            self.MoveDown()
+
+    def MoveToEnemy(self):
+        self.Score -= 1
+        self.RemoveEnergy()
+        if self.CurrentLocation[0] - self.ClosestEnemy.CurrentLocation[0] > 0:
+            self.MoveLeft()
+        elif self.CurrentLocation[0] - self.ClosestEnemy.CurrentLocation[0] < 0:
+            self.MoveRight()
+        elif self.CurrentLocation[1] - self.ClosestEnemy.CurrentLocation[1] > 0:
+            self.MoveUp()
+        elif self.CurrentLocation[1] - self.ClosestEnemy.CurrentLocation[1] < 0:
+            self.MoveDown()
 
     def RemoveEnergy(self):
         self.Energy -= 1

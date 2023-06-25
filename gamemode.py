@@ -1,3 +1,4 @@
+import math
 import time
 
 import pygame
@@ -20,10 +21,7 @@ class GameMode:
     SecondBestCharacterScore = -999
     BestFitEver = -999
     BestCharacterRef = None
-
-    BestFitText = None
-    BestFitEverText = None
-    CurrentGenerationText = None
+    BestCharacterKills = 0
 
     def __init__(self):
         self.ResetVariables()
@@ -48,12 +46,14 @@ class GameMode:
                 self.BestCharacterDna = CurrentCharacter.Dna
                 self.BestCharacterScore = CurrentCharacter.Score
                 self.BestCharacterRef = CurrentCharacter
+                self.BestCharacterKills = CurrentCharacter.Kills
             elif CurrentCharacter.Score > self.BestCharacterScore:
                 self.SecondBestCharacterDna = self.BestCharacterDna
                 self.SecondBestCharacterScore = self.BestCharacterScore
                 self.BestCharacterScore = CurrentCharacter.Score
                 self.BestCharacterDna = CurrentCharacter.Dna
                 self.BestCharacterRef = CurrentCharacter
+                self.BestCharacterKills = CurrentCharacter.Kills
             elif self.SecondBestCharacterDna is None or CurrentCharacter.Score >= self.SecondBestCharacterScore:
                 self.SecondBestCharacterDna = CurrentCharacter.Dna
                 self.SecondBestCharacterScore = CurrentCharacter.Score
@@ -90,11 +90,16 @@ class GameMode:
 
         print("Best DNA: " + str(self.BestCharacterDna))
         print("Best character score: " + str(self.BestCharacterScore))
+        print("Best character kills: " + str(self.BestCharacterKills))
 
         self.CloneBestTwoCharacters()
 
-        self.MutateNotClonedCharacters()
-        self.NumberOfMutations *= 0.999
+        if self.NumberOfMutations > 1:
+            self.MutateNotClonedCharacters()
+            self.NumberOfMutations *= 0.99
+            print("Mutating " + str(math.ceil(self.NumberOfMutations)) + " DNAs.")
+        else:
+            print("Network converged. No mutations will occur.")
 
     def CloneBestTwoCharacters(self):
         for i in range(len(self.Characters)):
@@ -137,21 +142,21 @@ class GameMode:
         return False
 
     def DrawBestFitness(self, initial_y_loc):
-        if self.BestCharacterScore == -999:
+        if self.BestCharacterRef.Score == -999:
             return
         if self.CurrentBackground.Screen is None:
             return
 
         Font = pygame.font.SysFont("comicsansms", 13)
-        self.BestFitText = Font.render("Best fitness (round): " + str(self.BestCharacterScore), True, (0, 0, 0))
-        self.BestFitEverText = Font.render("Best fitness (ever): " + str(self.BestFitEver), True, (0, 0, 0))
-        self.CurrentBackground.Screen.blit(self.BestFitEverText, (50, initial_y_loc))
-        self.CurrentBackground.Screen.blit(self.BestFitText, (50, initial_y_loc + 15))
+        BestFitText = Font.render("Best fitness (round): " + str(self.BestCharacterRef.Score), True, (0, 0, 0))
+        BestFitEverText = Font.render("Best fitness (ever): " + str(self.BestFitEver), True, (0, 0, 0))
+        self.CurrentBackground.Screen.blit(BestFitEverText, (50, initial_y_loc))
+        self.CurrentBackground.Screen.blit(BestFitText, (50, initial_y_loc + 15))
 
     def DrawCurrentGeneration(self, initial_y_loc):
         Font = pygame.font.SysFont("comicsansms", 14)
-        self.CurrentGenerationText = Font.render("Generation: " + str(self.CurrentGeneration), True, (0, 0, 0))
-        self.CurrentBackground.Screen.blit(self.CurrentGenerationText, (50, initial_y_loc))
+        CurrentGenerationText = Font.render("Generation: " + str(self.CurrentGeneration), True, (0, 0, 0))
+        self.CurrentBackground.Screen.blit(CurrentGenerationText, (50, initial_y_loc))
 
     def DrawNeuralNet(self, initial_y_loc):
         BIAS = 1
@@ -196,20 +201,16 @@ class GameMode:
                                7)
 
         # Drawing output layer texts
-        FirstNeuronText = Font.render("MoveLeft", True, (0, 0, 0))
-        SecondNeuronText = Font.render("MoveRight", True, (0, 0, 0))
-        ThirdNeuronText = Font.render("MoveUp", True, (0, 0, 0))
-        FourthNeuronText = Font.render("MoveDown", True, (0, 0, 0))
-        FifthNeuronText = Font.render("Pickup", True, (0, 0, 0))
-        SixNeuronText = Font.render("CraftKnife", True, (0, 0, 0))
-        SevenNeuronText = Font.render("Attack", True, (0, 0, 0))
+        FirstNeuronText = Font.render("MoveToLog", True, (0, 0, 0))
+        SecondNeuronText = Font.render("MoveToEnemy", True, (0, 0, 0))
+        ThirdNeuronText = Font.render("Pickup", True, (0, 0, 0))
+        FourthNeuronText = Font.render("CraftKnife", True, (0, 0, 0))
+        FifthNeuronText = Font.render("Attack", True, (0, 0, 0))
         self.CurrentBackground.Screen.blit(FirstNeuronText, (210, initial_y_loc - 13))
         self.CurrentBackground.Screen.blit(SecondNeuronText, (210, initial_y_loc + 1 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(ThirdNeuronText, (210, initial_y_loc + 2 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(FourthNeuronText, (210, initial_y_loc + 3 * EachNeuronOffset - 13))
         self.CurrentBackground.Screen.blit(FifthNeuronText, (210, initial_y_loc + 4 * EachNeuronOffset - 13))
-        self.CurrentBackground.Screen.blit(SixNeuronText, (210, initial_y_loc + 5 * EachNeuronOffset - 13))
-        self.CurrentBackground.Screen.blit(SevenNeuronText, (210, initial_y_loc + 6 * EachNeuronOffset - 13))
 
         # Drawing connections
         for i in range(len(BestCharacterBrain.EntryLayer.Neurons) - BIAS):
@@ -238,6 +239,12 @@ class GameMode:
                     pygame.draw.line(self.CurrentBackground.Screen, (0, 0, 0), (150, initial_y_loc + i * EachNeuronOffset),
                                      (200, initial_y_loc + j * EachNeuronOffset), 1)
 
+    def DrawBestCharacterCurrentKills(self, initial_y_loc):
+        Font = pygame.font.SysFont("comicsansms", 14)
+        CurrentKillsText = Font.render("Best Character Kills: " + str(self.BestCharacterRef.Kills), True, (0, 0, 0))
+        self.CurrentBackground.Screen.blit(CurrentKillsText, (50, initial_y_loc))
+
+
     def DrawInfo(self):
         InitialYLoc = 50
         pygame.draw.rect(self.CurrentBackground.Screen, (255, 255, 255), (50, InitialYLoc, 250, 200))
@@ -245,4 +252,5 @@ class GameMode:
         self.DrawCurrentGeneration(InitialYLoc)
         self.GetBestTwoCharacters()
         self.DrawBestFitness(InitialYLoc + 15)
-        self.DrawNeuralNet(InitialYLoc + 60)
+        self.DrawBestCharacterCurrentKills(InitialYLoc + 45)
+        self.DrawNeuralNet(InitialYLoc + 75)
