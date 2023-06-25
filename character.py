@@ -10,7 +10,7 @@ import utils
 BASE_REWARD = 100
 LOG_REWARD_MULTIPLIER = 1
 CRAFT_REWARD_MULTIPLIER = 3
-KILL_REWARD_MULTIPLIER = 5
+KILL_REWARD_MULTIPLIER = 10
 
 
 class Character:
@@ -185,11 +185,11 @@ class Character:
 
     def MutateDna(self, number_of_mutations):
         for i in range(ceil(number_of_mutations)):
-            MutationType = random.randint(0, 2)
             IndexToMutate = random.randint(0, len(self.Dna) - 1)
-            if MutationType == 0:
-                self.Dna[IndexToMutate] = ((random.randint(0, 20000) / 10.0) - 1000.0)
-            elif MutationType == 1:
-                self.Dna[IndexToMutate] *= ((random.randint(0, 10000) / 10000.0) + 0.5)
-            elif MutationType == 2:
-                self.Dna[IndexToMutate] += (((random.randint(0, 20000) / 10.0) - 1000.0) / 100.0)
+            self.Dna[IndexToMutate] *= random.uniform(-2, 2)
+
+    def GetState(self):
+
+        if self.HasKnife:
+            return 3
+

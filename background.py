@@ -4,8 +4,8 @@ import pygame.display
 
 
 class Background:
-    DisplayWidth = 1280
-    DisplayHeight = 720
+    DisplayWidth = 1024
+    DisplayHeight = 640
     BasicSquareSize = 64
     Screen = None
     LogLocations = []
@@ -18,7 +18,7 @@ class Background:
     Grass3Img = pygame.image.load('Grass3.png')
 
     def __init__(self):
-        self.Screen = pygame.display.set_mode((self.DisplayWidth, self.DisplayHeight + 50))
+        self.Screen = pygame.display.set_mode((self.DisplayWidth+275, self.DisplayHeight))
         self.LogLocations = []
         self.SquareImageDict = {}
         self.SquareDict = {}

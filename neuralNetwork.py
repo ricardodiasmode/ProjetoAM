@@ -55,7 +55,7 @@ class NeuralNetwork:
     def Think(self, character, gamemode):
         self.FeedEntryLayer(character, gamemode)
         self.CalculateWeights()
-        self.LastCalculatedOutput = self.GetOutput()
+        self.LastCalculatedOutput = self.GetOutput(character)
 
     def FeedEntryLayer(self, character, gamemode):
         EntryParams = GetEntryParams(character, gamemode)
@@ -83,7 +83,8 @@ class NeuralNetwork:
                 Sum += self.OutLayer.Neurons[j].Weights[k] * self.HiddenLayers[-1].Neurons[k].OutValue
             self.OutLayer.Neurons[j].OutValue = relu(Sum)
 
-    def GetOutput(self):
+    def GetOutput(self, character):
+        CurrentState = character.GetState()
         GreaterOutValueIndex = 0
         Output = []
         OutputToPrint = []
