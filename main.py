@@ -2,6 +2,7 @@ import time
 
 import pygame
 import gamemode
+import neuralNetwork
 
 # Basic game setups
 pygame.init()
@@ -20,13 +21,12 @@ while GameMode.GameIsRunning:
     for CurrentCharacter in GameMode.Characters:
         if CurrentCharacter.IsDead:
             continue
-
         CurrentCharacter.Brain.Think(CurrentCharacter, GameMode.CurrentBackground)
         CurrentCharacter.React()
-        # TODO: Draw best character's neurons
+        GameMode.DrawInfo()  # This slow down the game a lot
+
     GameMode.OnTurnEnd()
 
     # Update loop
     pygame.display.update()
     Clock.tick()
-    print("Turn: " + str(GameMode.CurrentTurn) + " Has passed!")

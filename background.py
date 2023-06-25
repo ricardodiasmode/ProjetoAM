@@ -18,7 +18,7 @@ class Background:
     Grass3Img = pygame.image.load('Grass3.png')
 
     def __init__(self):
-        self.screen = pygame.display.set_mode((self.DisplayWidth, self.DisplayHeight + 50))
+        self.Screen = pygame.display.set_mode((self.DisplayWidth, self.DisplayHeight + 50))
         self.LogLocations = []
         self.SquareImageDict = {}
         self.SquareDict = {}
@@ -38,7 +38,7 @@ class Background:
                     ImageToUse = self.Grass2Img
                 elif randomNumber == 3:
                     ImageToUse = self.Grass3Img
-                self.screen.blit(ImageToUse, (currentWidth, currentHeight))
+                self.Screen.blit(ImageToUse, (currentWidth, currentHeight))
                 self.SquareImageDict[(currentWidth, currentHeight)] = ImageToUse
                 self.SquareDict[(currentWidth, currentHeight)] = "GRASS"
 
@@ -47,7 +47,7 @@ class Background:
             for currentWidth in range(0, self.DisplayWidth, self.BasicSquareSize):
                 randomNumber = randrange(10)
                 if 4 >= randomNumber > 2:
-                    self.screen.blit(LogImg, (currentWidth, currentHeight))
+                    self.Screen.blit(LogImg, (currentWidth, currentHeight))
                     self.SquareImageDict[(currentWidth, currentHeight)] = LogImg
                     self.SquareDict[(currentWidth, currentHeight)] = "LOG"
                     self.LogLocations.append((currentWidth, currentHeight))

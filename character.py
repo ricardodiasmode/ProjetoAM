@@ -19,9 +19,6 @@ class Character:
     Dna = []
     Score = 0
 
-    MovedOnce = False
-    PickupOnce = False
-
     def __init__(self, blue_team, location, game_mode):
         self.CurrentLocation = location
         self.GameMode = game_mode
@@ -50,7 +47,7 @@ class Character:
     def RemoveItemOnGround(self, item):
         if item == "LOG":
             CurrentBackground = self.GameMode.CurrentBackground
-            CurrentBackground.screen.blit(self.PlayerImage, self.CurrentLocation)
+            CurrentBackground.Screen.blit(self.PlayerImage, self.CurrentLocation)
             CurrentBackground.SquareDict[self.CurrentLocation] = "GRASS"
             CurrentBackground.SquareImageDict[self.CurrentLocation] = CurrentBackground.Grass1Img
             CurrentBackground.LogLocations.remove(self.CurrentLocation)
@@ -83,7 +80,6 @@ class Character:
         self.Score -= 1
         self.RemoveEnergy()
         LocationToGo = (self.CurrentLocation[0] + position[0], self.CurrentLocation[1] + position[1])
-        self.MovedOnce = True
 
         if LocationToGo[0] < 0 or LocationToGo[0] >= self.GameMode.CurrentBackground.DisplayWidth or \
                 LocationToGo[1] < 0 or LocationToGo[1] >= self.GameMode.CurrentBackground.DisplayHeight:
@@ -95,8 +91,8 @@ class Character:
             return
 
         ImageBelow = self.GameMode.CurrentBackground.SquareImageDict[self.CurrentLocation]
-        self.GameMode.CurrentBackground.screen.blit(ImageBelow, self.CurrentLocation)
-        self.GameMode.CurrentBackground.screen.blit(self.PlayerImage, LocationToGo)
+        self.GameMode.CurrentBackground.Screen.blit(ImageBelow, self.CurrentLocation)
+        self.GameMode.CurrentBackground.Screen.blit(self.PlayerImage, LocationToGo)
         self.CurrentLocation = LocationToGo
 
     def RemoveEnergy(self):
@@ -104,11 +100,10 @@ class Character:
         if self.Energy <= 0:
             self.IsDead = True
             ImageBelow = self.GameMode.CurrentBackground.SquareImageDict[self.CurrentLocation]
-            self.GameMode.CurrentBackground.screen.blit(ImageBelow, self.CurrentLocation)
+            self.GameMode.CurrentBackground.Screen.blit(ImageBelow, self.CurrentLocation)
 
     def PickUp(self):
         self.RemoveEnergy()
-        self.PickupOnce = True
         self.Score -= 1
         if self.HasLog:
             return
