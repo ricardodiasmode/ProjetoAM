@@ -10,7 +10,7 @@ def GetClosestDistanceToLogs(character, log_locations):
             closest_distance = current_dist
             closest_index = i
     character.ClosestLogLocation = log_locations[closest_index]
-    return log_locations[closest_index]
+    return abs(log_locations[closest_index][0] - character.CurrentLocation[0]), abs(log_locations[closest_index][1] - character.CurrentLocation[1])
 
 
 def GetClosestDistanceToCharacters(character, other_characters):
@@ -27,7 +27,8 @@ def GetClosestDistanceToCharacters(character, other_characters):
     if closest_index == -1:
         return 999, 999
     character.ClosestEnemy = other_characters[closest_index]
-    return other_characters[closest_index].CurrentLocation
+    return abs(other_characters[closest_index].CurrentLocation[0] - character_location[0]), \
+        abs(other_characters[closest_index].CurrentLocation[1] - character_location[1])
 
 
 def DistanceBetweenLocations(first_loc, second_loc):

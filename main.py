@@ -41,5 +41,4 @@ while GameMode.GameIsRunning:
 
     # Update loop
     pygame.display.update()
-    print("FrameRate: " + str(FrameRate))
     Clock.tick(FrameRate)
