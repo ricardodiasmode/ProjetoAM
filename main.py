@@ -11,7 +11,7 @@ GameMode = gamemode.GameMode()
 GameMode.ResetGame()
 pygame.display.update()
 ShouldDrawInfo = False
-FrameRate = 0
+SleepTime = 0
 
 while GameMode.GameIsRunning:
     # Event loop
@@ -22,11 +22,11 @@ while GameMode.GameIsRunning:
             if Event.key == pygame.K_s:
                 ShouldDrawInfo = not ShouldDrawInfo
             elif Event.key == pygame.K_UP:
-                FrameRate += 30
+                SleepTime += 0.001
             elif Event.key == pygame.K_DOWN:
-                FrameRate -= 30
-                if FrameRate < 30:
-                    FrameRate = 30
+                SleepTime -= 0.001
+                if SleepTime < 0:
+                    SleepTime = 0
 
     # Game loop
     for CurrentCharacter in GameMode.Characters:
@@ -34,11 +34,13 @@ while GameMode.GameIsRunning:
             continue
         CurrentCharacter.Brain.Think(CurrentCharacter, GameMode)
         CurrentCharacter.React()
+        time.sleep(SleepTime)
     if ShouldDrawInfo:
         GameMode.DrawInfo()  # This slow down the game a lot
+    time.sleep(SleepTime*10)
 
     GameMode.OnTurnEnd()
 
     # Update loop
     pygame.display.update()
-    Clock.tick(FrameRate)
+    Clock.tick()

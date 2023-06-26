@@ -48,7 +48,15 @@ class Character:
             PlayerObjectName = "WithLog"
         elif self.HasKnife:
             PlayerObjectName = "WithKnife"
+        if self.IsDead:
+            if self.Energy <= 0:
+                PlayerObjectName = "EnergyDeath"
+            else:
+                PlayerObjectName = "Death"
         self.PlayerImage = pygame.image.load(PlayerTeamName + "Character" + PlayerObjectName + ".png")
+        ImageBelow = self.GameMode.CurrentBackground.SquareImageDict[self.CurrentLocation]
+        self.GameMode.CurrentBackground.Screen.blit(ImageBelow, self.CurrentLocation)
+        self.GameMode.CurrentBackground.Screen.blit(self.PlayerImage, self.CurrentLocation)
 
     def RemoveItemOnGround(self, item):
         if item == "LOG":
@@ -89,7 +97,7 @@ class Character:
     def Attack(self):
         self.RemoveEnergy()
         self.Score -= 1
-        if utils.DistanceBetweenLocations(self.ClosestEnemy.CurrentLocation, self.CurrentLocation) > 64 and \
+        if utils.DistanceBetweenLocations(self.ClosestEnemy.CurrentLocation, self.CurrentLocation) <= 64 and \
                 self.HasKnife:
             self.Score += BASE_REWARD * KILL_REWARD_MULTIPLIER
             self.ClosestEnemy.Die()
@@ -162,8 +170,7 @@ class Character:
 
     def Die(self):
         self.IsDead = True
-        ImageBelow = self.GameMode.CurrentBackground.SquareImageDict[self.CurrentLocation]
-        self.GameMode.CurrentBackground.Screen.blit(ImageBelow, self.CurrentLocation)
+        self.UpdateImage()
 
     def PickUp(self):
         self.RemoveEnergy()
