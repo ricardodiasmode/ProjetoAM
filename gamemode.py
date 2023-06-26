@@ -7,7 +7,7 @@ import character
 
 class GameMode:
     NumberOfCharactersEachTeam = 8
-    GenerationsToAcceptConvergence = 1000
+    GenerationsToAcceptConvergence = 10
 
     CurrentGeneration = 0
     GameIsRunning = True
@@ -24,7 +24,7 @@ class GameMode:
     BestCharacterKills = 0
 
     NetworkConverged = False
-    GenerationsWithoutScoreRecord = 0
+    GenerationsWithoutDnaChange = 0
     BestFitEver = -999
     BestDnaEver = None
 
@@ -41,11 +41,13 @@ class GameMode:
 
         if self.BestCharacterScore > self.BestFitEver:
             self.BestFitEver = self.BestCharacterScore
+
+        if self.BestDnaEver != self.BestCharacterDna:
             self.BestDnaEver = self.BestCharacterDna
-            self.GenerationsWithoutScoreRecord = 0
+            self.GenerationsWithoutDnaChange = 0
         else:
-            self.GenerationsWithoutScoreRecord += 1
-            if self.GenerationsWithoutScoreRecord >= self.GenerationsToAcceptConvergence:
+            self.GenerationsWithoutDnaChange += 1
+            if self.GenerationsWithoutDnaChange >= self.GenerationsToAcceptConvergence:
                 self.NetworkConverged = True
 
         self.InitNewGame()
@@ -103,8 +105,10 @@ class GameMode:
             print("Best DNA do not changed.")
         else:
             print("Best DNA changed.")
-        print("Best character score: " + str(self.BestCharacterScore))
+        print("Best character score (round): " + str(self.BestCharacterScore))
+        print("Best character score (ever): " + str(self.BestFitEver))
         print("Best character kills: " + str(self.BestCharacterKills))
+        print("Best character DNA: " + str(self.BestCharacterDna))
 
         if not self.NetworkConverged:
             self.CloneBestTwoCharacters()
@@ -112,7 +116,6 @@ class GameMode:
             self.NumberOfMutations *= 0.999
             if self.NumberOfMutations < len(self.Characters[0].Dna)/5:
                 self.NumberOfMutations = len(self.Characters[0].Dna)/5
-                print("Number of mutation is in the minimum. The net should have converged.")
             print("Mutating " + str(math.ceil(self.NumberOfMutations)) + " DNAs.")
         else:
             print("Network converged. No mutations will occur.")

@@ -79,8 +79,9 @@ class Character:
             self.Attack()
 
     def React(self):
+        GenerationTillStopRandomizing = 5000
         # Set a probability to hit the desired action
-        ProbabilityDecrease = (self.GameMode.CurrentGeneration - 1000) / 1000
+        ProbabilityDecrease = (self.GameMode.CurrentGeneration - GenerationTillStopRandomizing) / GenerationTillStopRandomizing
         if ProbabilityDecrease < 0.75:
             ProbabilityDecrease = 0.75
         ProbabilityToHit = ProbabilityDecrease  # When hits 1000 generation, probability to hit is 1
