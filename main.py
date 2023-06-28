@@ -21,21 +21,27 @@ while GameMode.GameIsRunning:
             if Event.key == pygame.K_s:
                 ShouldDrawInfo = not ShouldDrawInfo
             elif Event.key == pygame.K_UP:
-                SleepTime += 0.001
+                SleepTime += 0.01
             elif Event.key == pygame.K_DOWN:
-                SleepTime -= 0.001
+                SleepTime -= 0.01
                 if SleepTime < 0:
                     SleepTime = 0
 
-    # Game loop
-    # for CurrentCar in GameMode.Cars:
-    #     if CurrentCar.IsDead:
-    #         continue
-    #     CurrentCar.Brain.Think(CurrentCar, GameMode)
-    #     CurrentCar.React()
+    GameMode.CurrentBackground.DrawBackground()
 
-    # if ShouldDrawInfo:
-    #     GameMode.DrawInfo()  # This slow down the game a lot
+    # Game loop
+    CurrentAliveCars = 0
+    for CurrentCar in GameMode.Cars:
+        if GameMode.CurrentBackground.SquareDict[CurrentCar.CurrentLocation] == "LOG":
+            CurrentCar.Die()
+        if CurrentCar.IsDead:
+            continue
+        CurrentCar.Brain.Think(CurrentCar, GameMode)
+        CurrentCar.React()
+        CurrentAliveCars += 1
+
+    if ShouldDrawInfo:
+        GameMode.DrawInfo()  # This slow down the game a lot
     time.sleep(SleepTime)
 
     GameMode.OnTurnEnd()

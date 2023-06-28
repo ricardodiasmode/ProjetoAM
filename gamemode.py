@@ -32,22 +32,22 @@ class GameMode:
     def ResetGame(self):
         self.GetBestFiveCars()
         self.InitNewGame()
-        self.MutateCars()
+        self.ChangeCarsDna()
 
     def GetBestFiveCars(self):
         # Sorting cars by score
-        self.Cars.sort(key=lambda x: x.Score, reverse=True)
+        self.Cars.sort(key=lambda x: x.Rewards, reverse=True)
         self.BestCarsInTurn = self.Cars[:5]
 
     def InitNewGame(self):
         print("---------- Init generation: " + str(self.CurrentGeneration) + " ----------")
         self.ResetVariables()
         self.CurrentBackground = background.Background()
-        # self.CreateCars()
-        # self.CurrentGeneration += 1
+        self.CreateCars()
+        self.CurrentGeneration += 1
 
     def CreateCars(self):
-        InitialLoc = (self.CurrentBackground.Width / 2, self.CurrentBackground.Height / 2)
+        InitialLoc = (self.CurrentBackground.DisplayWidth / 2, self.CurrentBackground.DisplayHeight / 2)
 
         for i in range(self.NumberOfCars):
             self.Cars.append(car.Car(InitialLoc, self))
@@ -55,8 +55,10 @@ class GameMode:
         if self.CurrentGeneration == 0:
             self.NumberOfMutations = len(self.Cars[0].Dna)
 
-    def MutateCars(self):
-        print("Best car score (round): " + str(self.BestCarsInTurn[0].Score))
+    def ChangeCarsDna(self):
+        if len(self.BestCarsInTurn) == 0:
+            return
+        print("Best car score (round): " + str(self.BestCarsInTurn[0].Rewards))
         print("Best car DNA(round): " + str(self.BestCarsInTurn[0].Dna))
         self.CloneBestCars()
         self.MutateCars()
@@ -75,11 +77,12 @@ class GameMode:
             self.Cars[i].MutateDna(self.NumberOfMutations)
 
     def OnTurnEnd(self):
-        # if self.CheckIfGameOver():
-        #     print("Game over in turn: " + str(self.CurrentTurn))
-        #     self.ResetGame()
-        self.CurrentBackground.DrawBackground()
+        if self.CheckIfGameOver():
+            print("Game over in turn: " + str(self.CurrentTurn))
+            self.ResetGame()
+            return
         self.CurrentTurn += 1
+        print("Turn: " + str(self.CurrentTurn) + " | Alive cars: " + len(self.Cars).__str__())
 
     def CheckIfGameOver(self):
         for CurrentCar in self.Cars:

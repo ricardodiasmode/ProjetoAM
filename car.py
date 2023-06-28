@@ -49,11 +49,11 @@ class Car:
 
         if LocationToGo[0] < 0 or LocationToGo[0] >= self.GameMode.CurrentBackground.DisplayWidth or \
                 LocationToGo[1] < 0 or LocationToGo[1] >= self.GameMode.CurrentBackground.DisplayHeight:
+            self.GameMode.CurrentBackground.Screen.blit(self.PlayerImage, self.CurrentLocation)
             return
-        ImageBelow = self.GameMode.CurrentBackground.SquareImageDict[self.CurrentLocation]
-        self.GameMode.CurrentBackground.Screen.blit(ImageBelow, self.CurrentLocation)
-        self.GameMode.CurrentBackground.Screen.blit(self.PlayerImage, LocationToGo)
+
         self.CurrentLocation = LocationToGo
+        self.GameMode.CurrentBackground.Screen.blit(self.PlayerImage, self.CurrentLocation)
 
     def Die(self):
         self.IsDead = True
