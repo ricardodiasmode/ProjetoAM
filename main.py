@@ -2,7 +2,6 @@ import time
 
 import pygame
 import gamemode
-import neuralNetwork
 
 # Basic game setups
 pygame.init()
@@ -11,7 +10,7 @@ GameMode = gamemode.GameMode()
 GameMode.ResetGame()
 pygame.display.update()
 ShouldDrawInfo = False
-SleepTime = 0
+SleepTime = 1
 
 while GameMode.GameIsRunning:
     # Event loop
@@ -29,15 +28,15 @@ while GameMode.GameIsRunning:
                     SleepTime = 0
 
     # Game loop
-    for CurrentCharacter in GameMode.Characters:
-        if CurrentCharacter.IsDead:
-            continue
-        CurrentCharacter.Brain.Think(CurrentCharacter, GameMode)
-        CurrentCharacter.React()
-        time.sleep(SleepTime)
-    if ShouldDrawInfo:
-        GameMode.DrawInfo()  # This slow down the game a lot
-    time.sleep(SleepTime*10)
+    # for CurrentCar in GameMode.Cars:
+    #     if CurrentCar.IsDead:
+    #         continue
+    #     CurrentCar.Brain.Think(CurrentCar, GameMode)
+    #     CurrentCar.React()
+
+    # if ShouldDrawInfo:
+    #     GameMode.DrawInfo()  # This slow down the game a lot
+    time.sleep(SleepTime)
 
     GameMode.OnTurnEnd()
 
