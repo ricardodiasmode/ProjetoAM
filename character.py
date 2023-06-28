@@ -1,6 +1,5 @@
 import math
 import random
-from math import ceil
 import pygame
 import neuralNetwork
 import utils
@@ -180,11 +179,3 @@ class Character:
             self.CraftKnife()
         elif action_index == 4:
             self.Attack()
-
-    def GetState(self):
-        if self.HasKnife:
-            return 0  # only State that attack is allowed
-        elif not self.HasLog:
-            return 1  # only State that pick up is allowed
-        elif self.HasLog and not self.HasKnife:
-            return 2  # only State that craft knife is allowed

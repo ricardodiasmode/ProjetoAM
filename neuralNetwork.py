@@ -88,12 +88,6 @@ class NeuralNetwork:
         for i in range(len(self.OutLayer.Neurons)):
             OutputToPrint.append(self.OutLayer.Neurons[i].OutValue)
             if self.OutLayer.Neurons[i].OutValue > self.OutLayer.Neurons[GreaterOutValueIndex].OutValue:
-                if i == 0 and character.GetState() != 0:  # want to attack but cant
-                    continue
-                elif i == 2 and character.GetState() != 1:  # want to pickup but cant
-                    continue
-                elif i == 3 and character.GetState() != 2:  # want to craft but cant
-                    continue
                 GreaterOutValueIndex = i
         for i in range(len(self.OutLayer.Neurons)):
             if i != GreaterOutValueIndex:
