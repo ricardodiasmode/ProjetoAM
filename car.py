@@ -13,7 +13,7 @@ class Car:
     IsDead = False
     Brain = None
     Dna = []
-    Score = 0
+    Rewards = 0
 
     def __init__(self, location, game_mode):
         self.CurrentLocation = location
@@ -72,6 +72,7 @@ class Car:
                 self.Dna[index] += self.Dna[index] + number
 
     def GetAction(self, action_index):
+        self.Rewards += 1
         if action_index == 0:
             self.MoveLeft()
         elif action_index == 1:
