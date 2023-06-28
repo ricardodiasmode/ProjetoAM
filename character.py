@@ -38,8 +38,7 @@ class Character:
         self.Dna = []
         for i in range(self.Brain.GetWeightAmount()):
             self.Dna.append((random.randint(0, 20000) / 10.0) - 1000.0)
-        # if game_mode.CurrentBackground.SquareDict[self.CurrentLocation] == "LOG":
-        #     self.RemoveItemOnGround("LOG")
+
 
     def UpdateImage(self):
         PlayerTeamName = "Blue" if self.BlueTeamMember else "Red"
@@ -66,34 +65,12 @@ class Character:
             CurrentBackground.SquareImageDict[self.CurrentLocation] = CurrentBackground.Grass1Img
             CurrentBackground.LogLocations.remove(self.CurrentLocation)
 
-    def GetAction(self, action_index):
-        if action_index == 0:
-            self.MoveToLog()
-        elif action_index == 1:
-            self.MoveToEnemy()
-        elif action_index == 2:
-            self.PickUp()
-        elif action_index == 3:
-            self.CraftKnife()
-        elif action_index == 4:
-            self.Attack()
-
     def React(self):
-        GenerationTillStopRandomizing = 5000
-        # Set a probability to hit the desired action
-        ProbabilityDecrease = (self.GameMode.CurrentGeneration - GenerationTillStopRandomizing) / GenerationTillStopRandomizing
-        if ProbabilityDecrease < 0.75:
-            ProbabilityDecrease = 0.75
-        ProbabilityToHit = ProbabilityDecrease  # When hits 1000 generation, probability to hit is 1
-        random_number = random.uniform(0, 1)
         OutputLen = len(self.Brain.LastCalculatedOutput)
-
         for i in range(OutputLen):
-            if random_number < ProbabilityToHit and self.Brain.LastCalculatedOutput[i] > 0:
+            if self.Brain.LastCalculatedOutput[i] > 0:
                 self.GetAction(i)
                 return
-        # If no action was hit, take random action
-        self.GetAction(random.randint(0, OutputLen - 1))
 
     def Attack(self):
         self.RemoveEnergy()
@@ -186,6 +163,34 @@ class Character:
             self.Score += BASE_REWARD * LOG_REWARD_MULTIPLIER
 
     def MutateDna(self, number_of_mutations):
-        for i in range(ceil(number_of_mutations)):
-            IndexToMutate = random.randint(0, len(self.Dna) - 1)
-            self.Dna[IndexToMutate] *= random.uniform(-2, 2)
+        for k in range(math.ceil(number_of_mutations)):
+            in_type = random.randint(0, 2)
+            index = random.randint(0, len(self.Dna) - 1)
+            if in_type == 0:
+                self.Dna[index] = (random.randint(0, 20000) / 10.0) - 1000.0
+            elif in_type == 1:
+                number = (random.randint(0, 10000) / 10000.0) + 0.5
+                self.Dna[index] *= self.Dna[index] * number
+            elif in_type == 2:
+                number = (random.randint(0, 20000) / 10.0) - 1000.0 / 100.0
+                self.Dna[index] += self.Dna[index] + number
+
+    def GetAction(self, action_index):
+        if action_index == 0:
+            self.MoveToLog()
+        elif action_index == 1:
+            self.MoveToEnemy()
+        elif action_index == 2:
+            self.PickUp()
+        elif action_index == 3:
+            self.CraftKnife()
+        elif action_index == 4:
+            self.Attack()
+
+    def GetState(self):
+        if self.HasKnife:
+            return 0  # only State that attack is allowed
+        elif not self.HasLog:
+            return 1  # only State that pick up is allowed
+        elif self.HasLog and not self.HasKnife:
+            return 2  # only State that craft knife is allowed

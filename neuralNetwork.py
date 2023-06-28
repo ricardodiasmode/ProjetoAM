@@ -88,6 +88,12 @@ class NeuralNetwork:
         for i in range(len(self.OutLayer.Neurons)):
             OutputToPrint.append(self.OutLayer.Neurons[i].OutValue)
             if self.OutLayer.Neurons[i].OutValue > self.OutLayer.Neurons[GreaterOutValueIndex].OutValue:
+                if i == 0 and character.GetState() != 0:  # want to attack but cant
+                    continue
+                elif i == 2 and character.GetState() != 1:  # want to pickup but cant
+                    continue
+                elif i == 3 and character.GetState() != 2:  # want to craft but cant
+                    continue
                 GreaterOutValueIndex = i
         for i in range(len(self.OutLayer.Neurons)):
             if i != GreaterOutValueIndex:
@@ -105,3 +111,15 @@ class NeuralNetwork:
         for j in range(len(self.OutLayer.Neurons)):
             Sum += len(self.OutLayer.Neurons[j].Weights)
         return Sum
+
+    def InitWeightsByDna(self, dna):
+        j = 0
+        for i in range(len(self.HiddenLayers)):
+            for k in range(len(self.HiddenLayers[i].Neurons)):
+                for l in range(len(self.HiddenLayers[i].Neurons[k].Weights)):
+                    self.HiddenLayers[i].Neurons[k].Weights[l] = dna[j]
+                    j += 1
+        for k in range(len(self.OutLayer.Neurons)):
+            for l in range(len(self.OutLayer.Neurons[k].Weights)):
+                self.OutLayer.Neurons[k].Weights[l] = dna[j]
+                j += 1

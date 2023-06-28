@@ -7,7 +7,7 @@ import character
 
 class GameMode:
     NumberOfCharactersEachTeam = 8
-    GenerationsToAcceptConvergence = 10
+    GenerationsToAcceptConvergence = 10000
 
     CurrentGeneration = 0
     GameIsRunning = True
@@ -126,9 +126,9 @@ class GameMode:
         for i in range(len(self.Characters)):
             if i % 2 == 0:  # Ones that will be mutated
                 continue
-            if i % 3 == 0:  # Ones that will be cloned from second best
+            elif i % 3 == 0:  # Ones that will be cloned from second best
                 self.Characters[i].Dna = self.SecondBestCharacterDna
-            if i % 4 == 0:  # Ones that will not be touched
+            elif i % 4 == 0:  # Ones that will not be touched
                 continue
             else:  # Ones that will be cloned from best
                 self.Characters[i].Dna = self.BestCharacterDna
@@ -277,13 +277,20 @@ class GameMode:
         CurrentKillsText = Font.render("Best Character Kills: " + str(self.BestCharacterRef.Kills), True, (0, 0, 0))
         self.CurrentBackground.Screen.blit(CurrentKillsText, (initial_x_loc, initial_y_loc))
 
+    def DrawBestCharacterIndex(self, initial_x_loc, initial_y_loc):
+        BestCharacterIndex = self.Characters.index(self.BestCharacterRef)
+        Font = pygame.font.SysFont("comicsansms", 14)
+        CurrentKillsText = Font.render("Best Character Index: " + str(BestCharacterIndex), True, (0, 0, 0))
+        self.CurrentBackground.Screen.blit(CurrentKillsText, (initial_x_loc, initial_y_loc))
+
     def DrawInfo(self):
         InitialYLoc = 0
         InitialXLoc = self.CurrentBackground.DisplayWidth
-        pygame.draw.rect(self.CurrentBackground.Screen, (255, 255, 255), (InitialXLoc, InitialYLoc, 275, 200))
+        pygame.draw.rect(self.CurrentBackground.Screen, (255, 255, 255), (InitialXLoc, InitialYLoc, 275, 300))
 
         self.DrawCurrentGeneration(InitialXLoc, InitialYLoc)
         self.GetBestTwoCharacters()
         self.DrawBestFitness(InitialXLoc, InitialYLoc + 15)
         self.DrawBestCharacterCurrentKills(InitialXLoc, InitialYLoc + 45)
-        self.DrawNeuralNet(InitialXLoc, InitialYLoc + 75)
+        self.DrawBestCharacterIndex(InitialXLoc, InitialYLoc + 65)
+        self.DrawNeuralNet(InitialXLoc, InitialYLoc + 105)
