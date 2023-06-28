@@ -74,7 +74,6 @@ class Character:
 
     def Attack(self):
         self.RemoveEnergy()
-        self.Score -= 1
         if utils.DistanceBetweenLocations(self.ClosestEnemy.CurrentLocation, self.CurrentLocation) <= 64 and \
                 self.HasKnife:
             self.Score += BASE_REWARD * KILL_REWARD_MULTIPLIER
@@ -83,7 +82,6 @@ class Character:
 
     def CraftKnife(self):
         self.RemoveEnergy()
-        self.Score -= 1
         if self.HasLog and not self.HasKnife:
             self.HasLog = False
             self.Score += BASE_REWARD * CRAFT_REWARD_MULTIPLIER
@@ -118,7 +116,6 @@ class Character:
         self.CurrentLocation = LocationToGo
 
     def MoveToLog(self):
-        self.Score -= 1
         self.RemoveEnergy()
         if self.CurrentLocation[0] - self.ClosestLogLocation[0] > 0:
             self.MoveLeft()
@@ -130,7 +127,6 @@ class Character:
             self.MoveDown()
 
     def MoveToEnemy(self):
-        self.Score -= 1
         self.RemoveEnergy()
         if self.CurrentLocation[0] - self.ClosestEnemy.CurrentLocation[0] > 0:
             self.MoveLeft()
@@ -152,9 +148,7 @@ class Character:
 
     def PickUp(self):
         self.RemoveEnergy()
-        self.Score -= 1
         if self.HasLog or self.HasKnife:
-            self.Score -= 1
             return
         if self.GameMode.CurrentBackground.SquareDict[self.CurrentLocation] == "LOG":
             self.HasLog = True

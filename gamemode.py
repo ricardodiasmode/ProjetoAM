@@ -27,6 +27,7 @@ class GameMode:
     GenerationsWithoutDnaChange = 0
     BestFitEver = -999
     BestDnaEver = None
+    BestKillsEver = 0
 
     def __init__(self):
         self.ResetVariables()
@@ -41,9 +42,10 @@ class GameMode:
 
         if self.BestCharacterScore > self.BestFitEver:
             self.BestFitEver = self.BestCharacterScore
+            self.BestDnaEver = self.BestCharacterDna
+            self.BestKillsEver = self.BestCharacterKills
 
         if self.BestDnaEver != self.BestCharacterDna:
-            self.BestDnaEver = self.BestCharacterDna
             self.GenerationsWithoutDnaChange = 0
         else:
             self.GenerationsWithoutDnaChange += 1
@@ -106,9 +108,11 @@ class GameMode:
         else:
             print("Best DNA changed.")
         print("Best character score (round): " + str(self.BestCharacterScore))
+        print("Best character DNA(round): " + str(self.BestCharacterDna))
+        print("Best character kills(round): " + str(self.BestCharacterKills))
         print("Best character score (ever): " + str(self.BestFitEver))
-        print("Best character kills: " + str(self.BestCharacterKills))
-        print("Best character DNA: " + str(self.BestCharacterDna))
+        print("Best character DNA(ever): " + str(self.BestDnaEver))
+        print("Best character kills(ever): " + str(self.BestCharacterKills))
 
         if not self.NetworkConverged:
             self.CloneBestTwoCharacters()
