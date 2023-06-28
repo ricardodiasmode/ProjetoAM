@@ -77,3 +77,6 @@ class Car:
             self.MoveLeft()
         elif action_index == 1:
             self.MoveRight()
+        elif action_index == 2:
+            #  Do nothing
+            self.GameMode.CurrentBackground.Screen.blit(self.PlayerImage, self.CurrentLocation)
