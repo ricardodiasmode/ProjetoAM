@@ -7,7 +7,7 @@ import car
 
 
 class GameMode:
-    NumberOfCars = 2000
+    NumberOfCars = 1000
     GenerationsToAcceptConvergence = 10000
 
     CurrentGeneration = 0

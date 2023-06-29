@@ -1,4 +1,5 @@
 # Description: This file contains the neural network class and its functions
+import math
 import random
 
 import utils
@@ -6,8 +7,8 @@ from layer import Layer
 
 INITIAL_WEIGHT_RATE = 1.0
 BIAS = 1
-AMOUNT_ENTRY_NEURON = 2 + BIAS
-AMOUNT_HIDDEN_NEURON = [3 + BIAS]
+AMOUNT_ENTRY_NEURON = 3 + BIAS
+AMOUNT_HIDDEN_NEURON = [5 + BIAS]
 AMOUNT_OUT_NEURON = 3
 
 
@@ -19,7 +20,8 @@ def GetEntryParams(car, gamemode):
     XDist, HasLog = utils.GetFirstGapDeltaLocation(car.CurrentLocation, gamemode.CurrentBackground)
     return [
         XDist > 0,
-        XDist == 0 or not HasLog
+        XDist == 0,
+        HasLog
     ]
 
 
@@ -41,23 +43,31 @@ class NeuralNetwork:
     def InitializeWeights(self):
         for i in range(len(self.HiddenLayers)):
             for j in range(len(self.HiddenLayers[i].Neurons)):
-                self.HiddenLayers[i].Neurons[j].Weights.append(
-                    random.uniform(-INITIAL_WEIGHT_RATE, INITIAL_WEIGHT_RATE))
+                if i == len(self.HiddenLayers) - 1:
+                    for k in range(len(self.OutLayer.Neurons)):
+                        self.HiddenLayers[i].Neurons[j].Weights.append(
+                            random.uniform(-INITIAL_WEIGHT_RATE, INITIAL_WEIGHT_RATE))
+                else:
+                    for k in range(len(self.HiddenLayers[i + 1].Neurons)):
+                        self.HiddenLayers[i].Neurons[j].Weights.append(
+                            random.uniform(-INITIAL_WEIGHT_RATE, INITIAL_WEIGHT_RATE))
         for j in range(len(self.OutLayer.Neurons)):
-            self.OutLayer.Neurons[j].Weights.append(
-                random.uniform(-INITIAL_WEIGHT_RATE, INITIAL_WEIGHT_RATE))
+            for k in range(len(self.HiddenLayers[-1].Neurons)):
+                self.OutLayer.Neurons[j].Weights.append(
+                    random.uniform(-INITIAL_WEIGHT_RATE, INITIAL_WEIGHT_RATE))
 
     def Think(self, car, gamemode):
         self.FeedEntryLayer(car, gamemode)
-        self.CalculateWeights()
-        self.LastCalculatedOutput = self.GetOutput(car)
+        self.CalculateWeights(car, gamemode)
+        self.LastCalculatedOutput = self.GetOutput()
 
     def FeedEntryLayer(self, car, gamemode):
         EntryParams = GetEntryParams(car, gamemode)
         for i in range(len(self.EntryLayer.Neurons) - BIAS):
-            self.EntryLayer.Neurons[i].OutValue = EntryParams[i]
+            self.EntryLayer.Neurons[i].OutValue = int(EntryParams[i])
 
-    def CalculateWeights(self):
+    def CalculateWeights(self, car, gamemode):
+        gamemode.GetBestFiveCars()
         # Calculate the first Hidden Layer
         for j in range(len(self.HiddenLayers[0].Neurons)):
             Sum = 0
@@ -71,19 +81,19 @@ class NeuralNetwork:
                 for k in range(len(self.HiddenLayers[i].Neurons[j].Weights)):
                     Sum += self.HiddenLayers[i].Neurons[j].Weights[k] * self.HiddenLayers[i - 1].Neurons[k].OutValue
                 self.HiddenLayers[i].Neurons[j].OutValue = relu(Sum)
+
         # Calculate the Out Layer
         for j in range(len(self.OutLayer.Neurons)):
             Sum = 0
+            print(len(self.OutLayer.Neurons[j].Weights))
             for k in range(len(self.OutLayer.Neurons[j].Weights)):
                 Sum += self.OutLayer.Neurons[j].Weights[k] * self.HiddenLayers[-1].Neurons[k].OutValue
             self.OutLayer.Neurons[j].OutValue = relu(Sum)
 
-    def GetOutput(self, character):
-        GreaterOutValueIndex = 0
+    def GetOutput(self):
+        GreaterOutValueIndex = -1
         Output = []
-        OutputToPrint = []
         for i in range(len(self.OutLayer.Neurons)):
-            OutputToPrint.append(self.OutLayer.Neurons[i].OutValue)
             if self.OutLayer.Neurons[i].OutValue > self.OutLayer.Neurons[GreaterOutValueIndex].OutValue:
                 GreaterOutValueIndex = i
         for i in range(len(self.OutLayer.Neurons)):
@@ -91,6 +101,8 @@ class NeuralNetwork:
                 Output.append(0)
             else:
                 Output.append(1)
+        if GreaterOutValueIndex == -1:
+            Output[-1] = 1
         return Output
 
     def GetWeightAmount(self):

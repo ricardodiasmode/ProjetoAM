@@ -37,6 +37,7 @@ class Car:
             if self.Brain.LastCalculatedOutput[i] > 0:
                 self.GetAction(i)
                 return
+        self.GetAction(-1)
 
     def MoveLeft(self):
         self.Move((-64, 0))
@@ -77,6 +78,6 @@ class Car:
             self.MoveLeft()
         elif action_index == 1:
             self.MoveRight()
-        elif action_index == 2:
+        else:
             #  Do nothing
             self.GameMode.CurrentBackground.Screen.blit(self.PlayerImage, self.CurrentLocation)
