@@ -123,10 +123,8 @@ class GameMode:
         Font = pygame.font.SysFont("comicsansms", 14)
         FirstNeuronText = Font.render("XDist", True, (0, 0, 0))
         SecondNeuronText = Font.render("Equal", True, (0, 0, 0))
-        ThirdNeuronText = Font.render("HasLog", True, (0, 0, 0))
         self.CurrentBackground.Screen.blit(FirstNeuronText, (initial_x_loc, initial_y_loc - 13))
         self.CurrentBackground.Screen.blit(SecondNeuronText, (initial_x_loc, 20 + initial_y_loc - 13))
-        self.CurrentBackground.Screen.blit(ThirdNeuronText, (initial_x_loc, 40 + initial_y_loc - 13))
 
         # Drawing first layer neurons
         for i in range(len(BestCharacterBrain.EntryLayer.Neurons) - BIAS):

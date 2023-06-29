@@ -7,8 +7,8 @@ from layer import Layer
 
 INITIAL_WEIGHT_RATE = 1.0
 BIAS = 1
-AMOUNT_ENTRY_NEURON = 3 + BIAS
-AMOUNT_HIDDEN_NEURON = [5 + BIAS]
+AMOUNT_ENTRY_NEURON = 2 + BIAS
+AMOUNT_HIDDEN_NEURON = [1 + BIAS]
 AMOUNT_OUT_NEURON = 3
 
 
@@ -20,8 +20,7 @@ def GetEntryParams(car, gamemode):
     XDist, HasLog = utils.GetFirstGapDeltaLocation(car.CurrentLocation, gamemode.CurrentBackground)
     return [
         XDist > 0,
-        XDist == 0,
-        HasLog
+        XDist == 0
     ]
 
 
@@ -58,7 +57,7 @@ class NeuralNetwork:
 
     def Think(self, car, gamemode):
         self.FeedEntryLayer(car, gamemode)
-        self.CalculateWeights(car, gamemode)
+        self.CalculateWeights()
         self.LastCalculatedOutput = self.GetOutput()
 
     def FeedEntryLayer(self, car, gamemode):
@@ -66,8 +65,7 @@ class NeuralNetwork:
         for i in range(len(self.EntryLayer.Neurons) - BIAS):
             self.EntryLayer.Neurons[i].OutValue = int(EntryParams[i])
 
-    def CalculateWeights(self, car, gamemode):
-        gamemode.GetBestFiveCars()
+    def CalculateWeights(self):
         # Calculate the first Hidden Layer
         for j in range(len(self.HiddenLayers[0].Neurons)):
             Sum = 0
@@ -85,7 +83,6 @@ class NeuralNetwork:
         # Calculate the Out Layer
         for j in range(len(self.OutLayer.Neurons)):
             Sum = 0
-            print(len(self.OutLayer.Neurons[j].Weights))
             for k in range(len(self.OutLayer.Neurons[j].Weights)):
                 Sum += self.OutLayer.Neurons[j].Weights[k] * self.HiddenLayers[-1].Neurons[k].OutValue
             self.OutLayer.Neurons[j].OutValue = relu(Sum)

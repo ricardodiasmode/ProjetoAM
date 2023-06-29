@@ -4,15 +4,16 @@ import pygame.display
 
 
 class Background:
-    RoundsWithoutSpawningLog = 6
-    MinRoundsToSpawnLog = 5
+    RoundsWithoutSpawningLog = 2
+    MinRoundsToSpawnLog = 3
+    MaxRoundsToSpawnLog = 5
     DisplayWidth = 1024
     DisplayHeight = 1024
     BasicSquareSize = 64
     Screen = None
     SquareImageDict = {}
     SquareDict = {}
-    LastGapLocation = 0
+    LastGapLocation = -1
 
     Grass0Img = pygame.image.load('Grass0.png')
     Grass1Img = pygame.image.load('Grass1.png')
@@ -45,8 +46,8 @@ class Background:
 
     def DrawBackground(self):
         randomNumber = randrange(1, 3)
-        if self.RoundsWithoutSpawningLog > self.MinRoundsToSpawnLog and \
-                randomNumber == 1:
+        if (self.RoundsWithoutSpawningLog > self.MinRoundsToSpawnLog and
+                randomNumber == 1) or self.RoundsWithoutSpawningLog > self.MaxRoundsToSpawnLog:
             self.RedrawBackground(True)
             self.SpawnLog()
             HalfDisplayWidth = (self.DisplayWidth / 2)/64
@@ -58,13 +59,18 @@ class Background:
             return
 
     def SpawnLog(self):
-        if self.LastGapLocation == 0:
+        if self.LastGapLocation == -1:
             GapLocation = self.DisplayWidth/2
         else:
-            MinGapLocation = self.LastGapLocation - (self.RoundsWithoutSpawningLog * 64) + 128
-            MaxGapLocation = self.LastGapLocation + (self.RoundsWithoutSpawningLog * 64) - 128
-            if MinGapLocation > MaxGapLocation:
-                MinGapLocation = MaxGapLocation
+            MinGapLocation = self.LastGapLocation - (self.RoundsWithoutSpawningLog * 64)
+            MaxGapLocation = self.LastGapLocation + (self.RoundsWithoutSpawningLog * 64)
+            # if MinGapLocation > MaxGapLocation:
+            #     MinGapLocation = MaxGapLocation
+            # if MinGapLocation == MaxGapLocation:
+            #     if MinGapLocation > 0:
+            #         MinGapLocation -= 64
+            #     elif MaxGapLocation == 0:
+            #         MaxGapLocation += 64
 
             if MinGapLocation < 0:
                 MinGapLocation = 0
