@@ -47,9 +47,10 @@ class Background:
         randomNumber = randrange(1, 3)
         if self.RoundsWithoutSpawningLog > self.MinRoundsToSpawnLog and \
                 randomNumber == 1:
-            self.RoundsWithoutSpawningLog = 0
             self.RedrawBackground(True)
             self.SpawnLog()
+            HalfDisplayWidth = (self.DisplayWidth / 2)/64
+            self.RoundsWithoutSpawningLog = -HalfDisplayWidth + 2
             return
         else:
             self.RedrawBackground(False)
@@ -58,11 +59,20 @@ class Background:
 
     def SpawnLog(self):
         if self.LastGapLocation == 0:
-            GapLocation = randrange(0, self.DisplayWidth, self.BasicSquareSize)
+            GapLocation = self.DisplayWidth/2
         else:
-            MinGapLocation = self.LastGapLocation + self.BasicSquareSize
-            MaxGapLocation = self.DisplayWidth - self.LastGapLocation - self.BasicSquareSize
+            MinGapLocation = self.LastGapLocation - (self.RoundsWithoutSpawningLog * 64) + 128
+            MaxGapLocation = self.LastGapLocation + (self.RoundsWithoutSpawningLog * 64) - 128
+            if MinGapLocation > MaxGapLocation:
+                MinGapLocation = MaxGapLocation
+
+            if MinGapLocation < 0:
+                MinGapLocation = 0
+            if MaxGapLocation > self.DisplayWidth - 64:
+                MaxGapLocation = self.DisplayWidth - 64
+
             GapLocation = randrange(MinGapLocation, MaxGapLocation, self.BasicSquareSize)
+        self.LastGapLocation = GapLocation
         for currentWidth in range(0, self.DisplayWidth, self.BasicSquareSize):
             if currentWidth == GapLocation:
                 continue

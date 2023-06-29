@@ -7,7 +7,7 @@ import car
 
 
 class GameMode:
-    NumberOfCars = 1000
+    NumberOfCars = 2000
     GenerationsToAcceptConvergence = 10000
 
     CurrentGeneration = 0
@@ -88,7 +88,6 @@ class GameMode:
             self.ResetGame()
             return
         self.CurrentTurn += 1
-        print("Turn: " + str(self.CurrentTurn) + " | Alive cars: " + len(self.Cars).__str__())
 
     def CheckIfGameOver(self):
         for CurrentCar in self.Cars:
@@ -124,8 +123,10 @@ class GameMode:
         Font = pygame.font.SysFont("comicsansms", 14)
         FirstNeuronText = Font.render("XDist", True, (0, 0, 0))
         SecondNeuronText = Font.render("Equal", True, (0, 0, 0))
+        ThirdNeuronText = Font.render("HasLog", True, (0, 0, 0))
         self.CurrentBackground.Screen.blit(FirstNeuronText, (initial_x_loc, initial_y_loc - 13))
-        self.CurrentBackground.Screen.blit(SecondNeuronText, (initial_x_loc, 25 + initial_y_loc - 13))
+        self.CurrentBackground.Screen.blit(SecondNeuronText, (initial_x_loc, 20 + initial_y_loc - 13))
+        self.CurrentBackground.Screen.blit(ThirdNeuronText, (initial_x_loc, 40 + initial_y_loc - 13))
 
         # Drawing first layer neurons
         for i in range(len(BestCharacterBrain.EntryLayer.Neurons) - BIAS):

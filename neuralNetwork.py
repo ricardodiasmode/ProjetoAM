@@ -7,7 +7,7 @@ from layer import Layer
 INITIAL_WEIGHT_RATE = 1.0
 BIAS = 1
 AMOUNT_ENTRY_NEURON = 2 + BIAS
-AMOUNT_HIDDEN_NEURON = [4 + BIAS]
+AMOUNT_HIDDEN_NEURON = [3 + BIAS]
 AMOUNT_OUT_NEURON = 3
 
 
@@ -16,10 +16,10 @@ def relu(x):
 
 
 def GetEntryParams(car, gamemode):
-    XDist = utils.GetFirstGapDeltaLocation(car.CurrentLocation, gamemode.CurrentBackground)[0]
+    XDist, HasLog = utils.GetFirstGapDeltaLocation(car.CurrentLocation, gamemode.CurrentBackground)
     return [
         XDist > 0,
-        XDist == 0
+        XDist == 0 or not HasLog
     ]
 
 

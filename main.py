@@ -10,7 +10,7 @@ GameMode = gamemode.GameMode()
 GameMode.ResetGame()
 pygame.display.update()
 ShouldDrawInfo = False
-SleepTime = 0.1
+SleepTime = 0.0
 
 while GameMode.GameIsRunning:
     # Event loop
@@ -20,9 +20,9 @@ while GameMode.GameIsRunning:
         if Event.type == pygame.KEYDOWN:
             if Event.key == pygame.K_s:
                 ShouldDrawInfo = not ShouldDrawInfo
-            elif Event.key == pygame.K_UP:
-                SleepTime += 0.01
             elif Event.key == pygame.K_DOWN:
+                SleepTime += 0.01
+            elif Event.key == pygame.K_UP:
                 SleepTime -= 0.01
                 if SleepTime < 0:
                     SleepTime = 0
@@ -39,6 +39,7 @@ while GameMode.GameIsRunning:
         CurrentCar.Brain.Think(CurrentCar, GameMode)
         CurrentCar.React()
         CurrentAliveCars += 1
+    print("Turn: " + str(GameMode.CurrentTurn) + " | Alive cars: " + CurrentAliveCars.__str__())
 
     if ShouldDrawInfo:
         GameMode.DrawInfo()  # This slow down the game a lot
