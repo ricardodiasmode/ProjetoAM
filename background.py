@@ -64,13 +64,6 @@ class Background:
         else:
             MinGapLocation = self.LastGapLocation - (self.RoundsWithoutSpawningLog * 64)
             MaxGapLocation = self.LastGapLocation + (self.RoundsWithoutSpawningLog * 64)
-            # if MinGapLocation > MaxGapLocation:
-            #     MinGapLocation = MaxGapLocation
-            # if MinGapLocation == MaxGapLocation:
-            #     if MinGapLocation > 0:
-            #         MinGapLocation -= 64
-            #     elif MaxGapLocation == 0:
-            #         MaxGapLocation += 64
 
             if MinGapLocation < 0:
                 MinGapLocation = 0
