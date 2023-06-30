@@ -2,6 +2,8 @@ import time
 import pygame
 import gamemode
 
+# LINK PARA O VÍDEO NO YOUTUBE: https://youtu.be/RVlLLstpe1Q
+
 # Basic game setups
 pygame.init()
 Clock = pygame.time.Clock()
